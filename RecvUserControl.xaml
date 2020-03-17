@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="HMCU_Sim.RecvUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HMCU_Sim"
+             mc:Ignorable="d" d:DesignWidth="600" Height="430">
+    <Grid Background="White" ShowGridLines="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Text="전송연번"/>
+                <TextBox Text ="{Binding SeqNum}" Width="100" Margin="10,0,0,0"></TextBox>
+            </WrapPanel>
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Text="영상처리상태"/>
+                <TextBox x:Name="triggerStatus"  Width="100" Margin="10,0,0,0">...</TextBox>
+            </WrapPanel>
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Text="영상번호"/>
+                <TextBox x:Name="imageNum"  Width="100" Margin="10,0,0,0">...</TextBox>
+            </WrapPanel>
+        </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="1">
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Text="IP"/>
+                <TextBox x:Name="ethIP" Width="100" Margin="5,0,0,0">...</TextBox>
+                <TextBlock Text="포트"/>
+                <TextBox x:Name="ethPort" Width="50" Margin="5,0,0,0">...</TextBox>
+                <CheckBox x:Name="autoSendCheck" Margin="5,0,0,0">자동전송</CheckBox>
+
+            </WrapPanel>
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Text="수신데이터"/>
+                <Button Click="SocketRxClear_Click"  Margin="15,0,0,0" Width="70">clear</Button>
+            </WrapPanel>
+            <ListBox x:Name="SocketRxList" Height="300" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Stretch"  Background="Beige" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+        </StackPanel>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,46 @@
+﻿<Window x:Class="HMCU_Sim.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HMCU_Sim"
+        mc:Ignorable="d"
+        Title="하이패스 MCU 시뮬레이터" Height="450" Width="800">
+    <Grid ShowGridLines="True" Background="AliceBlue">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />            
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+            <TabControl Name="tcSample" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" >
+            <TabItem x:Name="rcvTabCtrl" Header="수신">
+                <local:RecvUserControl/>                
+            </TabItem>
+            <TabItem x:Name="sndTabCtrl" Header="송신">
+                <!--<Frame Source="RecvUserControl.xaml"/> -->
+                <local:SendUserControl/>
+            </TabItem>
+
+        </TabControl>
+            <WrapPanel HorizontalAlignment="Right"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+            <Button Click="Load_Click"  Margin="5">
+                <StackPanel Orientation="Horizontal" Width="Auto" HorizontalAlignment="Left">
+                    <Image Source="bbopen.ico" Margin="5,0,5,0" Width="20" />
+                    <TextBlock Text="Load Config" VerticalAlignment="Center" Height="18" Width="auto" />
+                </StackPanel>
+            </Button>
+            <Button Click="Save_Click"  Margin="5">
+                <StackPanel Orientation="Horizontal" Width="Auto" HorizontalAlignment="Left">
+                    <Image Source="bbsave.ico" Margin="5,0,5,0" Width="20" />
+                    <TextBlock Text="Save Config" VerticalAlignment="Center" Height="18" Width="auto" />
+                </StackPanel>
+            </Button>
+            <Button Click="SocketServer_Click" x:Name="EthConnectionBtn" Margin="5,5,5,5">서버시작</Button>            
+        </WrapPanel>
+
+    </Grid>
+</Window>
