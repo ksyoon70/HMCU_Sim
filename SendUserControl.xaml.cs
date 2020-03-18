@@ -487,6 +487,16 @@ namespace HMCU_Sim
 
             switch (code)
             {
+                case Code.ACK:
+                    data = new byte[EthHeader.AckLen + EthHeader.extraLen];
+                    Array.Clear(data, 0, data.Length);
+                    data[1] = EthHeader.AckLen;
+                    break;
+                case Code.NACK:
+                    data = new byte[EthHeader.NackLen + EthHeader.extraLen];
+                    Array.Clear(data, 0, data.Length);
+                    data[1] = EthHeader.NackLen;
+                    break;
                 case Code.VIO_NUMBER_SYNC:
                     data = new byte[EthHeader.VioNumberSync + EthHeader.extraLen];
                     Array.Clear(data, 0, data.Length);
@@ -525,20 +535,37 @@ namespace HMCU_Sim
            
             data[0] = Protocols.STX;
             data[2] = (byte)code;  //CODE
-
-            //trigger = Int32.Parse(vioNumber.Text);
-            data[3] = (byte)SeqNum;
-            SeqNum = SeqNum + 1;
-            if(SeqNum == 0x100)
+            if(code == Code.ACK || code == Code.NACK)
             {
-                SeqNum = 1;
+                int seq = ((MainWindow)System.Windows.Application.Current.MainWindow).recvTabUsrCtrl.SeqNum;
+                data[3] = (byte)seq;
             }
+            else
+            {
+                data[3] = (byte)SeqNum;
+                SeqNum = SeqNum + 1;
+                if (SeqNum == 0x100)
+                {
+                    SeqNum = 1;
+                }
+            }
+           
 
             data[data.Length - 1] = Protocols.ETX;
             int index = 4;
 
             switch (code)
             {
+                case Code.ACK:
+                    {
+
+                    }
+                    break;
+                case Code.NACK:
+                    {
+
+                    }
+                    break;
                 case Code.VIO_NUMBER_SYNC:
                     {
                         byte[] intBytes = BitConverter.GetBytes(VioNumber);

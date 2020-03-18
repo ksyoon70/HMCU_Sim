@@ -47,6 +47,9 @@ namespace HMCU_Sim
         public RecvUserControl()
         {
             InitializeComponent();
+            /// MainWindow과  데이터 동기화를 하기 위해서는 아래 문장을 실행 시켜 준다.
+            DataContext = this;
+            SeqNum = 1;
         }
 
         private void SocketRxClear_Click(object sender, RoutedEventArgs e)

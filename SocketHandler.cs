@@ -255,19 +255,19 @@ namespace HMCU_Sim
                             Form.Dispatcher.Invoke(() =>
                             {
                                 //code 로 메시지 확인
-                                switch(state.buffer[3])
+                                switch(state.buffer[Frame.Code])
                                 {
                                     
                                     case Code.ACK:
-                                        recvTab.SeqNum = (int)state.buffer[4];  ///전송연번 업데이트
+                                        recvTab.SeqNum = (int)state.buffer[Frame.Seq];  ///전송연번 업데이트
                                         break;
                                     case Code.NACK:
-                                        recvTab.SeqNum = (int)state.buffer[4];  ///전송연번 업데이트
+                                        recvTab.SeqNum = (int)state.buffer[Frame.Seq];  ///전송연번 업데이트
                                         //추후 재전송 로직 추가
                                         break;
                                     case Code.STATUS_RES:  ///상태정보 수신
                                         {
-                                            recvTab.SeqNum = (int)state.buffer[4];  ///전송연번 업데이트
+                                            recvTab.SeqNum = (int)state.buffer[Frame.Seq];  ///전송연번 업데이트
                                             //ACK를 보내줌.
                                             sndTab.MakeEtherFrame(Code.ACK, out byte[] data);
                                             Send(handler, data);
@@ -278,13 +278,18 @@ namespace HMCU_Sim
                                         break;
                                     case Code.VIO_CONFIRM_REQ:   ///위반확인요구 수신
                                         {
-                                            recvTab.SeqNum = (int)state.buffer[4];  ///전송연번 업데이트
+                                            recvTab.SeqNum = (int)state.buffer[Frame.Seq];  ///전송연번 업데이트
                                             //ACK를 보내줌.
                                             sndTab.MakeEtherFrame(Code.ACK, out byte[] data);
                                             Send(handler, data);
 
+                                            int nCopy = Marshal.SizeOf(typeof(PACKET_VIO_REQUEST));
+                                            byte[] _cpyArray = new byte[nCopy];
+
+                                            Array.Copy(state.buffer, Frame.Data, _cpyArray, 0,nCopy);
+
                                             //위반확인응답을 보내줌.
-                                            PACKET_VIO_REQUEST pVioReq = (PACKET_VIO_REQUEST)PacketMethods.ByteToStructure(state.buffer, typeof(PACKET_VIO_REQUEST));
+                                            PACKET_VIO_REQUEST pVioReq = (PACKET_VIO_REQUEST)PacketMethods.ByteToStructure(_cpyArray, typeof(PACKET_VIO_REQUEST));
                                             if(pVioReq.imgStatus ==  0x00)
                                             {
                                                 recvTab.triggerStatus.Text = "정상";
@@ -303,7 +308,7 @@ namespace HMCU_Sim
                                         break;
                                     case Code.PLATE_RECOG_NOTIFY:
                                         {
-                                            recvTab.SeqNum = (int)state.buffer[4];  ///전송연번 업데이트
+                                            recvTab.SeqNum = (int)state.buffer[Frame.Seq];  ///전송연번 업데이트
                                         }
                                         break;
                                     default:

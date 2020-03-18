@@ -37,6 +37,14 @@ namespace HMCU_Sim
         public const byte IN_SPECIAL_ISSUE_END_NOTIFY = 0x52;     //입구특별발행종료 통보
     }
 
+    static class Frame
+    {
+        public const byte Len = 0x01;
+        public const byte Code = 0x02;
+        public const byte Seq = 0x03;
+        public const byte Data = 0x04;
+    }
+
     static class EthHeader
     {
         public const byte FLen = 10;
@@ -48,6 +56,8 @@ namespace HMCU_Sim
         public const byte WorkStartLen = 16;
         public const byte WorkEndLen = 16;
         public const byte VioNumberSync = 4;
+        public const byte AckLen = 2;
+        public const byte NackLen = 2;
         public const byte extraLen = 3;     //STX, LEN, ETX 갯수
     }
 }
