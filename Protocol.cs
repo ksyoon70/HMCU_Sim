@@ -32,6 +32,7 @@ namespace HMCU_Sim
         public const byte VIO_CONFIRM_RES = 0x42;   //위반확인응답
         public const byte VIO_CONFIRM_RES_N = 0x43;   //위반확인응답
         public const byte PLATE_RECOG_NOTIFY = 0x44;       //번호판인식결과 통보 
+        public const byte IMAGE_CONFIRM = 0x45;       //영상확정 
         public const byte VIO_NUMBER_SYNC = 0x25;          //위반번호 Sync
         public const byte IN_SPECIAL_ISSUE_START_NOTIFY = 0x51;     //입구특별발행개시 통보
         public const byte IN_SPECIAL_ISSUE_END_NOTIFY = 0x52;     //입구특별발행종료 통보
@@ -56,6 +57,7 @@ namespace HMCU_Sim
         public const byte WorkStartLen = 16;
         public const byte WorkEndLen = 16;
         public const byte VioNumberSync = 4;
+        public const byte ImageConfirmLen = 15;         //영상확정 길이
         public const byte AckLen = 2;
         public const byte NackLen = 2;
         public const byte extraLen = 3;     //STX, LEN, ETX 갯수

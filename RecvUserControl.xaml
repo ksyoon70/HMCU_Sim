@@ -29,7 +29,7 @@
         </StackPanel>
         <StackPanel Grid.Row="0" Grid.Column="1">
             <WrapPanel Margin="5,5,0,0">
-                <TextBlock Text="IP"/>
+                <TextBlock Text="My IP"/>
                 <TextBox x:Name="ethIP" Width="100" Margin="5,0,0,0">...</TextBox>
                 <TextBlock Text="포트"/>
                 <TextBox x:Name="ethPort" Width="50" Margin="5,0,0,0">...</TextBox>

@@ -300,10 +300,15 @@ namespace HMCU_Sim
                                             }
                                             /// 영상번호 업데이트
                                             recvTab.imageNum.Text = pVioReq.imagNum.ToString();
+                                            if(sndTab.syncMethod.SelectedIndex == 1)
+                                            {
+                                                sndTab.VioNumber = pVioReq.imagNum;
+                                            }
+                                            
 
                                             //sndTab.MakeEtherFrame(Code.VIO_CONFIRM_RES, out byte[] data);
                                             //Send(handler, data);
-                                            
+
                                         }
                                         break;
                                     case Code.PLATE_RECOG_NOTIFY:

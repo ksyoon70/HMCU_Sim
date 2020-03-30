@@ -29,16 +29,20 @@
                 <TextBlock Text="차선번호:"/>
                 <TextBox  Text="{Binding LaneNumber}" x:Name="laneNum" Width="50" Margin="10,0,0,0"></TextBox>
                 <TextBlock Text="근무번호:"/>
-                <TextBox Text="{Binding WorkNumber}" x:Name="workNum" Width="150" Margin="10,0,0,0"></TextBox>
+                <TextBox Text="{Binding WorkNumber}" x:Name="workNum" Width="100" Margin="10,0,0,0"></TextBox>
             </WrapPanel>
             <WrapPanel Margin="5,5,0,0">
                 <TextBlock Text="근무일자:"/>
                 <TextBox  x:Name="workTime" Width="150" Margin="10,0,0,0">...</TextBox>
+                <TextBlock Margin="5,5,0,0" Text="동기방식:"/>
+                <ComboBox x:Name="syncMethod" Margin="5,0,0,0" Width="70" ></ComboBox>
             </WrapPanel>
             <WrapPanel Margin="5,5,0,0">
                 <TextBlock Text="근무형태:"/>
-               <!-- <ComboBox ItemsSource="{Binding Worktypes}" SelectedItem="{Binding Worktype}" SelectedIndex="{Binding Worktype.Id}" DisplayMemberPath="Name" x:Name="wkComboBox" Margin="10,0,0,0" Width="100" ></ComboBox> -->
-                <ComboBox ItemsSource="{Binding Worktypes}" DisplayMemberPath="Name" x:Name="wkComboBox" Margin="10,0,0,0" Width="100" ></ComboBox>
+                <ComboBox ItemsSource="{Binding Worktypes}" DisplayMemberPath="Name" x:Name="wkComboBox" Margin="5,0,0,0" Width="70" ></ComboBox>
+                <TextBlock Margin="5,5,0,0" Text="확정차로:"/>
+                <ComboBox x:Name="cnfComboBox" Margin="5,0,0,0" Width="70" ></ComboBox>
+               
             </WrapPanel>
             <WrapPanel Margin="5,5,0,0">
                 <TextBlock Text="위반일시"/>
@@ -71,15 +75,16 @@
         </StackPanel>
         <StackPanel Grid.Row="0" Grid.Column="1">
             <WrapPanel Margin="5,5,0,0">
-                <Button Margin="5,0,0,0" Width="70" Click="TimeSync_Click">시각동기화</Button>
                 <Button Margin="5,0,0,0" Width="70" Click="HeartBeat_Click">상태요구</Button>
                 <Button Margin="5,0,0,0" Width="90" Click="SendVioConfirmResponse_Click">위반확인응답</Button>
                 <Button Margin="5,0,0,0" Width="110" Click ="SendVioConfirmResponseNew_Click">위반확인응답-신규</Button>
+                <Button Margin="5,0,0,0" Width="70" Click="ImageConfirm_Click">영상확정</Button>
             </WrapPanel>
             <WrapPanel Margin="5,5,0,0">
                 <Button Click="WorkStart_Click" Margin="5,0,0,0" Width="70">근무개시</Button>
                 <Button Click="WorkEnd_Click" Margin="5,0,0,0" Width="70">근무종료</Button>
                 <Button Click="SyncFrame_Click" Margin="5,0,0,0" Width="70">SyncFrame</Button>
+                <Button Margin="5,0,0,0" Width="70" Click="TimeSync_Click">시각동기화</Button>
             </WrapPanel>
             <WrapPanel Margin="5,5,0,0">
                 <Button Click="SocketTxClear_Click" Margin="5,0,0,0" Width="70">리스트삭제</Button>

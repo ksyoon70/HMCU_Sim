@@ -80,7 +80,17 @@ namespace HMCU_Sim
                 GetPrivateProfileString("SYSTEM", "VIO_CODE1","0", temp, 255, PROGRAM_INI_FULLPATH);
                 m_form.sndTabUsrCtrl.VioCode1= temp.ToString();
 
-             }
+                //확정 위치
+                GetPrivateProfileString("SYSTEM", "CONF_LOC", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                count = Convert.ToInt32(temp.ToString());
+                m_form.sndTabUsrCtrl.cnfComboBox.SelectedIndex = count;
+
+                // 싱크 방식
+                GetPrivateProfileString("SYSTEM", "SYNC_METHOD", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                count = Convert.ToInt32(temp.ToString());
+                m_form.sndTabUsrCtrl.syncMethod.SelectedIndex = count;
+            
+            }
 
             /// <summary>
             /// INI 파일의 설정  값 쓰기
@@ -113,6 +123,11 @@ namespace HMCU_Sim
                 //처리1 위반코드
                 WritePrivateProfileString("SYSTEM", "VIO_CODE1", m_form.sndTabUsrCtrl.VioCode1, PROGRAM_INI_FULLPATH);
 
+                // 확정 위치
+                WritePrivateProfileString("SYSTEM", "CONF_LOC", m_form.sndTabUsrCtrl.cnfComboBox.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
+
+                // 싱크 방식
+                WritePrivateProfileString("SYSTEM", "SYNC_METHOD", m_form.sndTabUsrCtrl.syncMethod.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
             }
 
             /// <summary>
