@@ -53,7 +53,10 @@
                 <TextBlock Text="차량번호"/>
                 <TextBox x:Name="plateNum" Width="150" Margin="10,0,0,0">...</TextBox>
             </WrapPanel>
-
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Text="처리갯수"/>
+                <ComboBox x:Name="pcComboBox" Margin="10,0,0,0" Width="100"></ComboBox>
+            </WrapPanel>
             <TabControl Name="tcProcess" Height="150" Margin="5,10,5,0" Background="#FF009DFF">
                 <TabItem Header="처리1">
                     <StackPanel>
@@ -68,6 +71,54 @@
                         <WrapPanel Margin="5,5,0,0">
                             <TextBlock Text="위반코드"/>
                             <TextBox Text="{Binding VioCode1}" x:Name="vioCode1" Margin="10,0,0,0" Width="100"></TextBox>
+                        </WrapPanel>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="처리2">
+                    <StackPanel>
+                        <WrapPanel Margin="5,5,0,0">
+                            <TextBlock Text="처리번호"/>
+                            <TextBox  Text="{Binding ProcNumber2}" x:Name="procNum2" Width="100" Margin="10,0,0,0"></TextBox>
+                        </WrapPanel>
+                        <WrapPanel Margin="5,5,0,0">
+                            <TextBlock Text="위반형태"/>
+                            <ComboBox x:Name="vioType2" Margin="10,0,0,0" Width="100"></ComboBox>
+                        </WrapPanel>
+                        <WrapPanel Margin="5,5,0,0">
+                            <TextBlock Text="위반코드"/>
+                            <TextBox Text="{Binding VioCode2}" x:Name="vioCode2" Margin="10,0,0,0" Width="100"></TextBox>
+                        </WrapPanel>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="처리3">
+                    <StackPanel>
+                        <WrapPanel Margin="5,5,0,0">
+                            <TextBlock Text="처리번호"/>
+                            <TextBox  Text="{Binding ProcNumber3}" x:Name="procNum3" Width="100" Margin="10,0,0,0"></TextBox>
+                        </WrapPanel>
+                        <WrapPanel Margin="5,5,0,0">
+                            <TextBlock Text="위반형태"/>
+                            <ComboBox x:Name="vioType3" Margin="10,0,0,0" Width="100"></ComboBox>
+                        </WrapPanel>
+                        <WrapPanel Margin="5,5,0,0">
+                            <TextBlock Text="위반코드"/>
+                            <TextBox Text="{Binding VioCode3}" x:Name="vioCode3" Margin="10,0,0,0" Width="100"></TextBox>
+                        </WrapPanel>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="처리4">
+                    <StackPanel>
+                        <WrapPanel Margin="5,5,0,0">
+                            <TextBlock Text="처리번호"/>
+                            <TextBox  Text="{Binding ProcNumber4}" x:Name="procNum4" Width="100" Margin="10,0,0,0"></TextBox>
+                        </WrapPanel>
+                        <WrapPanel Margin="5,5,0,0">
+                            <TextBlock Text="위반형태"/>
+                            <ComboBox x:Name="vioType4" Margin="10,0,0,0" Width="100"></ComboBox>
+                        </WrapPanel>
+                        <WrapPanel Margin="5,5,0,0">
+                            <TextBlock Text="위반코드"/>
+                            <TextBox Text="{Binding VioCode4}" x:Name="vioCode4" Margin="10,0,0,0" Width="100"></TextBox>
                         </WrapPanel>
                     </StackPanel>
                 </TabItem>
@@ -88,6 +139,8 @@
             </WrapPanel>
             <WrapPanel Margin="5,5,0,0">
                 <Button Click="SocketTxClear_Click" Margin="5,0,0,0" Width="70">리스트삭제</Button>
+                <Button Click="Ack_Click"  Margin="5,0,0,0" Width="70">Ack</Button>
+                <Button Margin="5,0,0,0" Width="70" Click="Nack_Click" Content="Nack" />
             </WrapPanel>
             <ListBox x:Name="SocketTxList" Height="295" HorizontalAlignment="Stretch" Margin="5" Background="#FFF0DAF3" ScrollViewer.VerticalScrollBarVisibility="Auto" />
         </StackPanel>

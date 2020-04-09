@@ -280,8 +280,8 @@ namespace HMCU_Sim
                                         {
                                             recvTab.SeqNum = (int)state.buffer[Frame.Seq];  ///전송연번 업데이트
                                             //ACK를 보내줌.
-                                            sndTab.MakeEtherFrame(Code.ACK, out byte[] data);
-                                            Send(handler, data);
+                                            //sndTab.MakeEtherFrame(Code.ACK, out byte[] data);
+                                            //Send(handler, data);
 
                                             int nCopy = Marshal.SizeOf(typeof(PACKET_VIO_REQUEST));
                                             byte[] _cpyArray = new byte[nCopy];

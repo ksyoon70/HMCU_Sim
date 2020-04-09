@@ -68,6 +68,11 @@ namespace HMCU_Sim
                 int index = Convert.ToInt32(temp.ToString());
                 m_form.sndTabUsrCtrl.wkComboBox.SelectedIndex = index;
 
+                //처리 갯수
+                GetPrivateProfileString("SYSTEM", "PROCESS_COUNT", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                count = Convert.ToInt32(temp.ToString());
+                m_form.sndTabUsrCtrl.pcComboBox.SelectedIndex = index;
+
 
                 //처리1
                 GetPrivateProfileString("SYSTEM", "PROCESS_NUM1", "1", temp, 255, PROGRAM_INI_FULLPATH);
@@ -79,6 +84,42 @@ namespace HMCU_Sim
                 //처리
                 GetPrivateProfileString("SYSTEM", "VIO_CODE1","0", temp, 255, PROGRAM_INI_FULLPATH);
                 m_form.sndTabUsrCtrl.VioCode1= temp.ToString();
+
+
+                //처리2
+                GetPrivateProfileString("SYSTEM", "PROCESS_NUM2", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                m_form.sndTabUsrCtrl.ProcNumber2 = uint.Parse(temp.ToString());
+                //위반형태
+                GetPrivateProfileString("SYSTEM", "VIO_TYPE2", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                count = Convert.ToInt32(temp.ToString());
+                m_form.sndTabUsrCtrl.vioType2.SelectedIndex = count;
+                //처리
+                GetPrivateProfileString("SYSTEM", "VIO_CODE2", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                m_form.sndTabUsrCtrl.VioCode2 = temp.ToString();
+
+                //처리
+                GetPrivateProfileString("SYSTEM", "PROCESS_NUM3", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                m_form.sndTabUsrCtrl.ProcNumber3 = uint.Parse(temp.ToString());
+
+                //처리
+                GetPrivateProfileString("SYSTEM", "PROCESS_NUM4", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                m_form.sndTabUsrCtrl.ProcNumber4 = uint.Parse(temp.ToString());
+
+                //위반형태
+                GetPrivateProfileString("SYSTEM", "VIO_TYPE3", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                count = Convert.ToInt32(temp.ToString());
+                m_form.sndTabUsrCtrl.vioType3.SelectedIndex = count;
+                //처리
+                GetPrivateProfileString("SYSTEM", "VIO_CODE3", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                m_form.sndTabUsrCtrl.VioCode3 = temp.ToString();
+
+                //위반형태
+                GetPrivateProfileString("SYSTEM", "VIO_TYPE4", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                count = Convert.ToInt32(temp.ToString());
+                m_form.sndTabUsrCtrl.vioType4.SelectedIndex = count;
+                //처리
+                GetPrivateProfileString("SYSTEM", "VIO_CODE4", "0", temp, 255, PROGRAM_INI_FULLPATH);
+                m_form.sndTabUsrCtrl.VioCode4 = temp.ToString();
 
                 //확정 위치
                 GetPrivateProfileString("SYSTEM", "CONF_LOC", "0", temp, 255, PROGRAM_INI_FULLPATH);
@@ -115,13 +156,21 @@ namespace HMCU_Sim
 
                 //처리1 번호
                 WritePrivateProfileString("SYSTEM", "PROCESS_NUM1", m_form.sndTabUsrCtrl.ProcNumber1.ToString(), PROGRAM_INI_FULLPATH);
-
+                
+                //처리 갯수
+                WritePrivateProfileString("SYSTEM", "PROCESS_COUNT", m_form.sndTabUsrCtrl.pcComboBox.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
 
                 //처리1 위반형태
                 WritePrivateProfileString("SYSTEM", "VIO_TYPE1", m_form.sndTabUsrCtrl.vioType1.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
 
                 //처리1 위반코드
                 WritePrivateProfileString("SYSTEM", "VIO_CODE1", m_form.sndTabUsrCtrl.VioCode1, PROGRAM_INI_FULLPATH);
+                //처리2 번호
+                WritePrivateProfileString("SYSTEM", "PROCESS_NUM2", m_form.sndTabUsrCtrl.ProcNumber2.ToString(), PROGRAM_INI_FULLPATH);
+                //처리3 번호
+                WritePrivateProfileString("SYSTEM", "PROCESS_NUM3", m_form.sndTabUsrCtrl.ProcNumber3.ToString(), PROGRAM_INI_FULLPATH);
+                //처리4 번호
+                WritePrivateProfileString("SYSTEM", "PROCESS_NUM4", m_form.sndTabUsrCtrl.ProcNumber4.ToString(), PROGRAM_INI_FULLPATH);
 
                 // 확정 위치
                 WritePrivateProfileString("SYSTEM", "CONF_LOC", m_form.sndTabUsrCtrl.cnfComboBox.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
