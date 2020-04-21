@@ -41,12 +41,13 @@
                 <TextBlock Text="근무형태:"/>
                 <ComboBox ItemsSource="{Binding Worktypes}" DisplayMemberPath="Name" x:Name="wkComboBox" Margin="5,0,0,0" Width="70" ></ComboBox>
                 <TextBlock Margin="5,5,0,0" Text="확정차로:"/>
-                <ComboBox x:Name="cnfComboBox" Margin="5,0,0,0" Width="70" ></ComboBox>
-               
+                <ComboBox x:Name="cnfComboBox" Margin="5,0,0,0" Width="100" ></ComboBox>
             </WrapPanel>
             <WrapPanel Margin="5,5,0,0">
                 <TextBlock Text="위반일시"/>
                 <TextBox x:Name="procTime" Width="100" Margin="10,0,0,0">...</TextBox>
+                <TextBlock Margin="5,5,0,0" Text="영상확정시점:"/>
+                <ComboBox x:Name="cftComboBox" Margin="5,0,0,0" Width="100" ></ComboBox>
             </WrapPanel>
 
             <WrapPanel Margin="5,5,0,0">

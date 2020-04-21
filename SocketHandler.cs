@@ -298,6 +298,11 @@ namespace HMCU_Sim
                                             {
                                                 recvTab.triggerStatus.Text = "비정상";
                                             }
+
+                                            ProcItem pItem = new ProcItem();
+                                            pItem.seq = state.buffer[Frame.Seq];
+                                            pItem.vioNum = pVioReq.imagNum;
+                                            sndTab.procList.Add(pItem);
                                             /// 영상번호 업데이트
                                             recvTab.imageNum.Text = pVioReq.imagNum.ToString();
                                             if(sndTab.syncMethod.SelectedIndex == 1)
@@ -319,99 +324,6 @@ namespace HMCU_Sim
                                     default:
                                         break;
                                 }
-
-#if false
-
-                                //이미지 정보이면...
-                                if(bytesRead == Marshal.SizeOf(typeof(PACKET_IMAGE_INFO)))
-                                {
-                                    PACKET_IMAGE_INFO pImgInfo = (PACKET_IMAGE_INFO)PacketMethods.ByteToStructure(state.buffer, typeof(PACKET_IMAGE_INFO));
-
-                                    int msg = (int)(pImgInfo.infoData.mgsID[0] << 8) + (int)(pImgInfo.infoData.mgsID[1]);
-                                    if (msg == Protocols.IMG_INFO)
-                                    {
-                                        // 차량위치 표시
-                                        recvTab.vds_loc.Text = pImgInfo.infoData.location.ToString("X2");
-                                        int hi = (pImgInfo.infoData.location >> 4) & 0x0F;
-                                        int low = pImgInfo.infoData.location & 0x0F;
-                                        //발생시각
-                                        StringBuilder sb = new StringBuilder();
-                                        //year
-                                        int year = BCDToWORD(pImgInfo.infoData.time.year);
-                                        sb.Append(year.ToString());
-                                        //month
-                                        sb.Append(pImgInfo.infoData.time.month.ToString("X2"));
-                                        //day
-                                        sb.Append(pImgInfo.infoData.time.day.ToString("X2"));
-                                        //hour
-                                        sb.Append(pImgInfo.infoData.time.hour.ToString("X2"));
-                                        //min
-                                        sb.Append(pImgInfo.infoData.time.min.ToString("X2"));
-                                        //sec
-                                        sb.Append(pImgInfo.infoData.time.sec.ToString("X2"));
-                                        //msec
-
-                                        sb.Append(pImgInfo.infoData.time.ms[0].ToString("X2"));
-                                        int msc = (int)(pImgInfo.infoData.time.ms[1] >> 4);
-                                        sb.Append(msc.ToString("X1"));
-
-                                        recvTab.vds_time.Text = sb.ToString();
-
-                                        Array.Reverse(pImgInfo.infoData.trigger);
-                                        int trigger = BitConverter.ToInt32(pImgInfo.infoData.trigger, 0);
-                                        recvTab.trigger.Text = trigger.ToString();
-
-
-                                        sndTab.lane.Text = hi.ToString();
-
-                                        //VDS 구분
-                                        switch (pImgInfo.infoData.vdsID)
-                                        {
-                                            case 1:
-                                                recvTab.vds_id.Text = "VDS#1";
-                                                sndTab.TriggerNum = trigger.ToString();
-                                                sndTab.vds_id.SelectedIndex = 0;
-                                                break;
-                                            default:
-                                                break;
-
-                                        }
-
-                                        
-
-                                        recvTab.code1.Text = pImgInfo.infoData.lane1Code.ToString("X2");
-                                        recvTab.code2.Text = pImgInfo.infoData.lane2Code.ToString("X2");
-                                        if(pImgInfo.infoData.lane1Code != 0xFF)
-                                        {
-                                            recvTab.plateNum1.Text = GetPlateNum(pImgInfo.infoData.plateNum1);
-                                        }
-                                        else
-                                        {
-                                            recvTab.plateNum1.Text = "차량번호 없음";
-                                        }
-
-                                        if (pImgInfo.infoData.lane2Code != 0xFF)
-                                        {
-                                            recvTab.plateNum2.Text = GetPlateNum(pImgInfo.infoData.plateNum2);
-                                        }
-                                        else
-                                        {
-                                            recvTab.plateNum2.Text = "차량번호 없음";
-                                        }
-
-                                        if(recvTab.autoSendCheck.IsChecked == true)  //자동전송이면..
-                                        {
-                                            //RoutedEventArgs e = new RoutedEventArgs();
-                                           // sndTab.SocketTxSend_Click(sndTab, e );
-                                            sndTab.SndBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-
-                                        }
-
-                                        
-                                    }
-
-                                }
-#endif
 
                             }
                             );

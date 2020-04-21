@@ -33,10 +33,11 @@ namespace HMCU_Sim
         ,"후불정상","후불출퇴근추가할인","후불심야할인","감면할인"};
         private string[] confLocation = new string[] { "전면", "후면" };
         private string[] syncMethods = new string[] { "전송연번", "위반번호" };
+        private string[] confTime = new string[] { "위반응답", "영상확정" };
 
         private int cycleNum; // 처리갯수
 
-        private List<ProcItem> procList;
+        public List<ProcItem> procList;
 
 
         public class WorkType
@@ -400,6 +401,12 @@ namespace HMCU_Sim
                 syncMethod.Items.Add(synm);
             }
 
+            // 영상확정시점
+            foreach (string ct in confTime)
+            {
+                cftComboBox.Items.Add(ct);
+            }
+
             procList = new List<ProcItem>();
 
         }
@@ -726,6 +733,14 @@ namespace HMCU_Sim
                     break;
                 case Code.VIO_CONFIRM_RES:
                     {
+
+                        // 위반확인요청이 없으면 종료한다.
+                        if (procList.Count == 0)
+                        {
+                            MessageBox.Show("수신된 위반확인 요구가 없습니다.");
+                            return;
+                        }
+
                         /// 위반번호
                         /// 
                         byte[] intBytes = BitConverter.GetBytes(VioNumber);
@@ -777,6 +792,8 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         index += Marshal.SizeOf(typeof(Byte));
 
+                       
+
                         switch (cycleNum)
                         {
                             case 1:
@@ -786,10 +803,27 @@ namespace HMCU_Sim
                                     index += Marshal.SizeOf(typeof(Byte));
                                     /// 처리번호 (통합차로제어기 부여)
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber1);
+                                    
+                                    
+                                    bool find = false;
+                                    for(int k = 0; k < procList.Count; k++)
+                                    {
+                                        if(procList[k].sndVioReq == false)
+                                        {
+                                            procList[k].ProcNum[0] = ProcNumber1;
+                                            procList[k].ProcNumCnt++;
+                                            procList[k].sndVioReq = true;
+                                            find = true;
+                                            break;
+                                        }
+                                    }
 
-                                    ProcItem pItem = new ProcItem();
-                                    pItem.ProcNum = ProcNumber1;
-                                    procList.Add(pItem);
+                                    if(find == false)
+                                    {
+                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (1)");
+                                        return;
+                                    }
+                                    
 
                                     if (ProcNumber1 == 0xFFFFFFFF)
                                     {
@@ -815,10 +849,26 @@ namespace HMCU_Sim
                                     /// 처리번호 (통합차로제어기 부여)
                                     ProcNumber2 = ProcNumber1;
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber2);
-                                    
-                                    ProcItem pItem = new ProcItem();
-                                    pItem.ProcNum = ProcNumber2;
-                                    procList.Add(pItem);
+
+                                    bool find = false;
+                                    for (int k = 0; k < procList.Count; k++)
+                                    {
+                                        if (procList[k].sndVioReq == false)
+                                        {
+                                            procList[k].ProcNum[1] = ProcNumber2;
+                                            procList[k].ProcNumCnt++;
+                                            procList[k].sndVioReq = true;
+                                            find = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (find == false)
+                                    {
+                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (2)");
+                                        return;
+                                    }
+
                                     if (ProcNumber2 == 0xFFFFFFFF)
                                     {
                                         ProcNumber2 = 1;
@@ -844,10 +894,26 @@ namespace HMCU_Sim
                                     /// 처리번호 (통합차로제어기 부여)
                                     ProcNumber3 = ProcNumber2;
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber3);
-                                    
-                                    ProcItem pItem = new ProcItem();
-                                    pItem.ProcNum = ProcNumber3;
-                                    procList.Add(pItem);
+
+                                    bool find = false;
+                                    for (int k = 0; k < procList.Count; k++)
+                                    {
+                                        if (procList[k].sndVioReq == false)
+                                        {
+                                            procList[k].ProcNum[2] = ProcNumber3;
+                                            procList[k].ProcNumCnt++;
+                                            procList[k].sndVioReq = true;
+                                            find = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (find == false)
+                                    {
+                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (3)");
+                                        return;
+                                    }
+
                                     if (ProcNumber3 == 0xFFFFFFFF)
                                     {
                                         ProcNumber3 = 1;
@@ -872,9 +938,26 @@ namespace HMCU_Sim
                                     /// 처리번호 (통합차로제어기 부여)
                                     ProcNumber4 = ProcNumber3;
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber4);
-                                    ProcItem pItem = new ProcItem();
-                                    pItem.ProcNum = ProcNumber4;
-                                    procList.Add(pItem);
+
+                                    bool find = false;
+                                    for (int k = 0; k < procList.Count; k++)
+                                    {
+                                        if (procList[k].sndVioReq == false)
+                                        {
+                                            procList[k].ProcNum[3] = ProcNumber4;
+                                            procList[k].ProcNumCnt++;
+                                            procList[k].sndVioReq = true;
+                                            find = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (find == false)
+                                    {
+                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (4)");
+                                        return;
+                                    }
+
                                     if (ProcNumber4 == 0xFFFFFFFF)
                                     {
                                         ProcNumber4 = 1;
@@ -980,7 +1063,10 @@ namespace HMCU_Sim
                 case Code.IMAGE_CONFIRM:
                     {
                         /// procList에서 item의 갯수를 구한다.
+                        /// 
 
+                        if(procList[0].curProcNumCnt < procList[0].ProcNumCnt)
+                        {
                             /// 영업소 번호
                             intValue = Convert.ToInt32(OfficeNumber);
                             byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(intValue);
@@ -1002,12 +1088,18 @@ namespace HMCU_Sim
                             index += Marshal.SizeOf(typeof(short));
 
                             /// 처리번호 (통합차로제어기 부여)
-                            byte[] bProcNum = BitConverter.GetBytes(procList[0].ProcNum);
+                            byte[] bProcNum = BitConverter.GetBytes(procList[0].ProcNum[procList[0].curProcNumCnt]);
+                            procList[0].curProcNumCnt++;
                             Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
                             index += Marshal.SizeOf(typeof(UInt32));
 
                             //확정위치
                             data[index] = (byte)(cnfComboBox.SelectedIndex + 1);  // 1이면 전면 2이면 후면.
+                        }
+                        else
+                        {
+                            MessageBox.Show("영상확정을 보낼 것이 없습니다.");
+                        }
 
                     }
                     break;
@@ -1052,6 +1144,15 @@ namespace HMCU_Sim
             ProcNumber2 = ProcNumber1 + 1;
             ProcNumber3 = ProcNumber2 + 1;
             ProcNumber4 = ProcNumber3 + 1;
+
+            for(int k= 0; k < procList.Count; k++)
+            {
+                if(procList[k].sndVioReq == true && cftComboBox.SelectedIndex == 0)
+                {
+                    //위반확인에서 영상확정이고, 위반확인을 보내면 item 삭제
+                    procList.RemoveAt(k);
+                }
+            }
         }
 
         private void SendVioConfirmResponseNew_Click(object sender, RoutedEventArgs e)
@@ -1098,11 +1199,16 @@ namespace HMCU_Sim
         private void ImageConfirm_Click(object sender, RoutedEventArgs e)
         {
             int procNum = procList.Count;
-            while (procList.Count > 0)
+            if (procList.Count > 0)
             {
                 MakeEtherFrame(Code.IMAGE_CONFIRM, out byte[] data);
                 ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+                procList[0].sndImgCfm = true;
                 procList.RemoveAt(0);
+            }
+            else
+            {
+                MessageBox.Show("영상 확정을 보낼 것이 없습니다");
             }
            
         }
