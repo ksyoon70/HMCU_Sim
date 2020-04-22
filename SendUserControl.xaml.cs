@@ -503,7 +503,7 @@ namespace HMCU_Sim
             index += EthHeader.HeartBeatLen;
 
         }
-        public void MakeEtherFrame(int code, out byte[] data)
+        public bool MakeEtherFrame(int code, out byte[] data)
         {
 
             DateTime dt = DateTime.Now;
@@ -581,9 +581,7 @@ namespace HMCU_Sim
             {
                 if(syncMethod.SelectedIndex == 0 && ((code == Code.VIO_CONFIRM_RES) || (code == Code.VIO_CONFIRM_RES_N)))
                 {
-                    //전송연번으로 동기화 할때.
-                    int seq = ((MainWindow)System.Windows.Application.Current.MainWindow).recvTabUsrCtrl.SeqNum;
-                    data[3] = (byte)seq;
+                    
                 }
                 else
                 {
@@ -738,7 +736,7 @@ namespace HMCU_Sim
                         if (procList.Count == 0)
                         {
                             MessageBox.Show("수신된 위반확인 요구가 없습니다.");
-                            return;
+                            return false;
                         }
 
                         /// 위반번호
@@ -812,8 +810,10 @@ namespace HMCU_Sim
                                         {
                                             procList[k].ProcNum[0] = ProcNumber1;
                                             procList[k].ProcNumCnt++;
-                                            procList[k].sndVioReq = true;
                                             find = true;
+                                            //전송연번으로 동기화 할때.
+                                            int seq = procList[k].seq;
+                                            data[3] = (byte)seq;
                                             break;
                                         }
                                     }
@@ -821,7 +821,7 @@ namespace HMCU_Sim
                                     if(find == false)
                                     {
                                         MessageBox.Show("이미 위반 확인응답을 보냈습니다 (1)");
-                                        return;
+                                        return false;
                                     }
                                     
 
@@ -857,7 +857,8 @@ namespace HMCU_Sim
                                         {
                                             procList[k].ProcNum[1] = ProcNumber2;
                                             procList[k].ProcNumCnt++;
-                                            procList[k].sndVioReq = true;
+                                            int seq = procList[k].seq;
+                                            data[3] = (byte)seq;
                                             find = true;
                                             break;
                                         }
@@ -866,7 +867,7 @@ namespace HMCU_Sim
                                     if (find == false)
                                     {
                                         MessageBox.Show("이미 위반 확인응답을 보냈습니다 (2)");
-                                        return;
+                                        return false;
                                     }
 
                                     if (ProcNumber2 == 0xFFFFFFFF)
@@ -902,7 +903,8 @@ namespace HMCU_Sim
                                         {
                                             procList[k].ProcNum[2] = ProcNumber3;
                                             procList[k].ProcNumCnt++;
-                                            procList[k].sndVioReq = true;
+                                            int seq = procList[k].seq;
+                                            data[3] = (byte)seq;
                                             find = true;
                                             break;
                                         }
@@ -911,7 +913,7 @@ namespace HMCU_Sim
                                     if (find == false)
                                     {
                                         MessageBox.Show("이미 위반 확인응답을 보냈습니다 (3)");
-                                        return;
+                                        return false;
                                     }
 
                                     if (ProcNumber3 == 0xFFFFFFFF)
@@ -946,7 +948,8 @@ namespace HMCU_Sim
                                         {
                                             procList[k].ProcNum[3] = ProcNumber4;
                                             procList[k].ProcNumCnt++;
-                                            procList[k].sndVioReq = true;
+                                            int seq = procList[k].seq;
+                                            data[3] = (byte)seq;
                                             find = true;
                                             break;
                                         }
@@ -955,7 +958,7 @@ namespace HMCU_Sim
                                     if (find == false)
                                     {
                                         MessageBox.Show("이미 위반 확인응답을 보냈습니다 (4)");
-                                        return;
+                                        return false;
                                     }
 
                                     if (ProcNumber4 == 0xFFFFFFFF)
@@ -1107,6 +1110,8 @@ namespace HMCU_Sim
                     break;
             }
 
+            return true;
+
         }
         /// <summary>
         /// 상태정보 요청 버튼
@@ -1136,9 +1141,22 @@ namespace HMCU_Sim
             uint saveProcNum = ProcNumber1;
             for (cycleNum = 1; cycleNum <= maxLoop; cycleNum++)
             {
-                MakeEtherFrame(Code.VIO_CONFIRM_RES, out byte[] data);
-                ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+                if (MakeEtherFrame(Code.VIO_CONFIRM_RES, out byte[] data) == true)
+                {
+                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);                   
+                }
             }
+
+            for (int k = 0; k < procList.Count; k++)
+            {
+                if (procList[k].sndVioReq == false && procList[k].ProcNumCnt > 0)
+                {
+                    //위반확인응답을 보냄.
+                    procList[k].sndVioReq = true;
+                    break;
+                }
+            }
+
             ProcNumber1 = saveProcNum;
             ProcNumber1 += (uint)maxLoop;
             ProcNumber2 = ProcNumber1 + 1;
@@ -1201,10 +1219,22 @@ namespace HMCU_Sim
             int procNum = procList.Count;
             if (procList.Count > 0)
             {
-                MakeEtherFrame(Code.IMAGE_CONFIRM, out byte[] data);
-                ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
-                procList[0].sndImgCfm = true;
-                procList.RemoveAt(0);
+                for(int i = 0; i < procList.Count; i++)
+                {
+                    if(procList[i].sndVioReq == true && procList[i].sndImgCfm == false)
+                    {
+                       
+                        for(int j = 0; j < procList[i].ProcNumCnt;  j++)
+                        {
+                            MakeEtherFrame(Code.IMAGE_CONFIRM, out byte[] data);
+                            ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+                            
+                        }
+                        procList[i].sndImgCfm = true;
+                        procList.RemoveAt(i);
+                        break;
+                    }
+                }
             }
             else
             {
