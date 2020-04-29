@@ -732,6 +732,8 @@ namespace HMCU_Sim
                 case Code.VIO_CONFIRM_RES:
                     {
 
+                        int vioTypeIndex;
+
                         // 위반확인요청이 없으면 종료한다.
                         if (procList.Count == 0)
                         {
@@ -790,10 +792,17 @@ namespace HMCU_Sim
 
                         Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         index += Marshal.SizeOf(typeof(Byte));
+                        //VioType은 나중에 할것이므로 기억만 만하고 있다가 나중에 처리
+                        vioTypeIndex = index;
+                        index += Marshal.SizeOf(typeof(Byte));
 
-                        ///근무번호
-                        byte[] bWorkNum = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(Convert.ToInt32(WorkNumber));
-                        Buffer.BlockCopy(bWorkNum, 0, data, index, Marshal.SizeOf(typeof(short)));
+                        //근무번호
+                        intValue = Convert.ToInt32(LaneNumber);
+                        byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        intValue = Convert.ToInt32(WorkNumber);
+                        byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
                         index += Marshal.SizeOf(typeof(short));
 
                         ///근무일자
@@ -813,8 +822,8 @@ namespace HMCU_Sim
                             case 1:
                                 { 
                                     ///위반형태
-                                    data[index] = (byte)vioType1.SelectedIndex;
-                                    index += Marshal.SizeOf(typeof(Byte));
+                                    data[vioTypeIndex] = (byte)vioType1.SelectedIndex;
+
                                     /// 처리번호 (통합차로제어기 부여)
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber1);
                                     
@@ -860,8 +869,7 @@ namespace HMCU_Sim
                             case 2:
                                 {
                                     ///위반형태
-                                    data[index] = (byte)vioType2.SelectedIndex;
-                                    index += Marshal.SizeOf(typeof(Byte));
+                                    data[vioTypeIndex] = (byte)vioType2.SelectedIndex;
                                     /// 처리번호 (통합차로제어기 부여)
                                     ProcNumber2 = ProcNumber1;
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber2);
@@ -906,8 +914,7 @@ namespace HMCU_Sim
                             case 3:
                                 {
                                     ///위반형태
-                                    data[index] = (byte)vioType3.SelectedIndex;
-                                    index += Marshal.SizeOf(typeof(Byte));
+                                    data[vioTypeIndex] = (byte)vioType3.SelectedIndex;
                                     /// 처리번호 (통합차로제어기 부여)
                                     ProcNumber3 = ProcNumber2;
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber3);
@@ -951,8 +958,7 @@ namespace HMCU_Sim
                             case 4:
                                 {
                                     ///위반형태
-                                    data[index] = (byte)vioType4.SelectedIndex;
-                                    index += Marshal.SizeOf(typeof(Byte));
+                                    data[vioTypeIndex] = (byte)vioType4.SelectedIndex;
                                     /// 처리번호 (통합차로제어기 부여)
                                     ProcNumber4 = ProcNumber3;
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber4);
@@ -1005,6 +1011,7 @@ namespace HMCU_Sim
                     break;
                 case Code.VIO_CONFIRM_RES_N:
                     {
+                        int vioTypeIndex;
 
                         // 위반확인요청이 없으면 종료한다.
                         if (procList.Count == 0)
@@ -1065,9 +1072,17 @@ namespace HMCU_Sim
                         index += Marshal.SizeOf(typeof(Byte));
 
                         ///근무번호
-                        byte[] bWorkNum = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(Convert.ToInt32(WorkNumber));
-                        Buffer.BlockCopy(bWorkNum, 0, data, index, Marshal.SizeOf(typeof(short)));
+                        intValue = Convert.ToInt32(LaneNumber);
+                        byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        intValue = Convert.ToInt32(WorkNumber);
+                        byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
                         index += Marshal.SizeOf(typeof(short));
+
+                        //VioType은 나중에 할것이므로 기억만 만하고 있다가 나중에 처리
+                        vioTypeIndex = index;
+                        index += Marshal.SizeOf(typeof(Byte));
 
                         ///근무일자
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
@@ -1080,14 +1095,12 @@ namespace HMCU_Sim
                         index += Marshal.SizeOf(typeof(Byte));
 
 
-
                         switch (cycleNum)
                         {
                             case 1:
                                 {
                                     ///위반형태
-                                    data[index] = (byte)vioType1.SelectedIndex;
-                                    index += Marshal.SizeOf(typeof(Byte));
+                                    data[vioTypeIndex] = (byte)vioType1.SelectedIndex;
                                     /// 처리번호 (통합차로제어기 부여)
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber1);
 
@@ -1133,8 +1146,7 @@ namespace HMCU_Sim
                             case 2:
                                 {
                                     ///위반형태
-                                    data[index] = (byte)vioType2.SelectedIndex;
-                                    index += Marshal.SizeOf(typeof(Byte));
+                                    data[vioTypeIndex] = (byte)vioType2.SelectedIndex;
                                     /// 처리번호 (통합차로제어기 부여)
                                     ProcNumber2 = ProcNumber1;
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber2);
@@ -1179,8 +1191,7 @@ namespace HMCU_Sim
                             case 3:
                                 {
                                     ///위반형태
-                                    data[index] = (byte)vioType3.SelectedIndex;
-                                    index += Marshal.SizeOf(typeof(Byte));
+                                    data[vioTypeIndex] = (byte)vioType3.SelectedIndex;
                                     /// 처리번호 (통합차로제어기 부여)
                                     ProcNumber3 = ProcNumber2;
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber3);
@@ -1224,8 +1235,8 @@ namespace HMCU_Sim
                             case 4:
                                 {
                                     ///위반형태
-                                    data[index] = (byte)vioType4.SelectedIndex;
-                                    index += Marshal.SizeOf(typeof(Byte));
+                                    data[vioTypeIndex] = (byte)vioType4.SelectedIndex;
+
                                     /// 처리번호 (통합차로제어기 부여)
                                     ProcNumber4 = ProcNumber3;
                                     byte[] bProcNum = BitConverter.GetBytes(ProcNumber4);
