@@ -67,6 +67,8 @@
     <Compile Include="SendUserControl.xaml.cs">
       <DependentUpon>SendUserControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SerialCfgDlg.xaml.cs" />
+    <Compile Include="SerialHandler.cs" />
     <Compile Include="SocketHandler.cs" />
     <Compile Include="WorkType.cs" />
     <Page Include="MainWindow.xaml">
@@ -88,6 +90,10 @@
     <Page Include="SendUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SerialCfgDlg.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +125,15 @@
   <ItemGroup>
     <Resource Include="bbopen.ico" />
     <Resource Include="bbsave.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Custom-Icon-Design-Flatastic-2-Process-accept.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="nav_right_green.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons-Land-Play-Stop-Pause-Pause-Normal.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

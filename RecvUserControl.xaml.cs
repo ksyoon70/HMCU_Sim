@@ -54,7 +54,7 @@ namespace HMCU_Sim
 
         private void SocketRxClear_Click(object sender, RoutedEventArgs e)
         {
-            SocketRxList.Items.Clear();
+            CommRxList.Items.Clear();
         }
 
         public void OnPropertyChanged(string propertyName)

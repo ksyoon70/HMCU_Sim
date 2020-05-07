@@ -1,0 +1,23 @@
+﻿<Window x:Class="HMCU_Sim.SerialCfgDlg"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HMCU_Sim"
+        mc:Ignorable="d"
+        Title="시리얼 설정" Height="342" Width="324">
+    <StackPanel Orientation="Vertical">
+        <WrapPanel>
+            <TextBlock Margin="10,5,0,0">포트:</TextBlock>
+            <ComboBox x:Name="comports" Margin="10,5,0,0" Width="100"></ComboBox>
+            <TextBlock Margin="10,5,0,0">속도:</TextBlock>
+            <ComboBox x:Name="comspeeds" Margin="10,5,0,0" Width="100"></ComboBox>
+        </WrapPanel>
+        <DockPanel>
+            <Button DockPanel.Dock="Right" Width="70" Height="20" Margin="10,5,5,5" HorizontalAlignment="Right" Click="Cancel_Click" >취소</Button>
+            <Button DockPanel.Dock="Right" Width="70" Height="20"  Margin="10,5,5,5" HorizontalAlignment="Right" Click="Confirm_Click">확인</Button>
+        </DockPanel>
+        
+    </StackPanel>
+    
+</Window>

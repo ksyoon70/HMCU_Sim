@@ -428,7 +428,7 @@ namespace HMCU_Sim
 
         private void SocketTxClear_Click(object sender, RoutedEventArgs e)
         {
-            SocketTxList.Items.Clear();
+            CommTxList.Items.Clear();
         }
 
         private void MakeTimeData(out byte[] data)

@@ -25,6 +25,11 @@ using System.Text.RegularExpressions;
 namespace HMCU_Sim
 {
 
+    public enum CommMethod
+    {
+        Ethernet,
+        Serial,
+    }
 
     // State object for receiving data from remote device.
     public class StateObject
@@ -49,8 +54,43 @@ namespace HMCU_Sim
 
         public Socket g_listener = null;
 
+        SerialPort m_Port = new SerialPort();
+
         ConfigManager m_cfg;
         public ConfigManager GetCfgManager() => m_cfg;
+
+        public CommMethod comm;
+
+        /// <summary>
+        /// 이더넷 방식인지 여부
+        /// </summary>
+        public bool IsEther
+        {
+            get
+            {
+                return (comm == CommMethod.Ethernet);
+            }
+            set
+            {
+                comm = value ? CommMethod.Ethernet : CommMethod.Serial;
+                OnPropertyChanged("IsEther");
+            }
+        }
+        /// <summary>
+        /// 시리얼 통신인지 여부
+        /// </summary>
+        public bool IsSerial
+        {
+            get
+            {
+                return (comm == CommMethod.Serial);
+            }
+            set
+            {
+                comm = value ? CommMethod.Serial : CommMethod.Ethernet;
+                OnPropertyChanged("IsSerial");
+            }
+        }
 
         private string svrport;
         public string Svrport
@@ -83,9 +123,60 @@ namespace HMCU_Sim
         public RecvUserControl recvTabUsrCtrl;
         public SendUserControl sndTabUsrCtrl;
 
+        delegate void SerialRecvDelegate();
+
+        private string[] ports;
+
+        private string port;
+        /**
+         *  COM 포트 설정
+         */
+        public string Port
+        {
+            get
+            {
+                return port;
+            }
+            set
+            {
+                port = value;
+            }
+        }
+
+        private string speed;
+        /**
+         *  COM Speed 설정
+         * */
+        public string Speed
+        {
+            get
+            {
+                return speed;
+            }
+            set
+            {
+                speed = value;
+            }
+        }
+        private string[] speeds = new string[] { "2400", "4800", "9600", "19200", "22800", "38400", "57600", "115200" };
+
+        private bool _isRuning = false;
+        public bool isRuning
+        {
+            get { return _isRuning; }
+            set
+            {
+                _isRuning = value;
+                OnPropertyChanged("isRuning");
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
+
+            /// MainWindow과  데이터 동기화를 하기 위해서는 아래 문장을 실행 시켜 준다.
+            DataContext = this;
 
             recvTabUsrCtrl = (RecvUserControl)rcvTabCtrl.Content;
             sndTabUsrCtrl = (SendUserControl)sndTabCtrl.Content;
@@ -104,13 +195,13 @@ namespace HMCU_Sim
             recvTabUsrCtrl.ethIP.Text = SvrIP;
             recvTabUsrCtrl.ethPort.Text = svrport;
 
-            //int bytesRead = Marshal.SizeOf(typeof(PACKET_MATCH_INFO));
-            Byte[] arr = new byte[4];
-            //arr[0] = 0x00;
-            //arr[1] = 0x34;
-            //arr[2] = 0x56;
-            //arr[3] = 0x78;
-            //int trigger = BCDToInt(arr, typeof(ushort));
+            /// 시리얼 통신이면 초기화 과정을 수행한다.
+            if(comm == CommMethod.Serial)
+            {
+                this.Loaded += new RoutedEventHandler(InitSerialPort);
+            }
+
+            isRuning = false;
 
         }
         protected void OnPropertyChanged(string propertyName)

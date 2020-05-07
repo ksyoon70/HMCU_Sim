@@ -27,6 +27,18 @@
 
         </TabControl>
             <WrapPanel HorizontalAlignment="Right"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+            <GroupBox Margin="15,0,0,0"  HorizontalAlignment="Left"  Background="White" Header="연결방식" BorderBrush="LightBlue">
+                <StackPanel>
+                    <RadioButton IsChecked="{Binding IsEther}" GroupName = "CommMethod" >이더넷</RadioButton>
+                    <RadioButton IsChecked="{Binding IsSerial}" GroupName = "CommMethod" >시리얼</RadioButton>
+                </StackPanel>
+            </GroupBox>
+            <Button Click="ComConfigBtn_Click" Margin="5">
+                <StackPanel Orientation="Horizontal" Width="Auto" HorizontalAlignment="Left">
+                    <Image Source="Custom-Icon-Design-Flatastic-2-Process-accept.ico" Margin="5,0,5,0" Width="20" />
+                    <TextBlock Text="COM 환경설정" VerticalAlignment="Center" Height="18" Width="auto" />
+                </StackPanel>
+            </Button>
             <Button Click="Load_Click"  Margin="5">
                 <StackPanel Orientation="Horizontal" Width="Auto" HorizontalAlignment="Left">
                     <Image Source="bbopen.ico" Margin="5,0,5,0" Width="20" />
@@ -39,7 +51,26 @@
                     <TextBlock Text="Save Config" VerticalAlignment="Center" Height="18" Width="auto" />
                 </StackPanel>
             </Button>
-            <Button Click="SocketServer_Click" x:Name="EthConnectionBtn" Margin="5,5,5,5">서버시작</Button>            
+            <Button Click="SocketServer_Click" x:Name="ConnectionBtn"  Margin="5">
+                <StackPanel Orientation="Horizontal" Width="Auto" HorizontalAlignment="Left">
+                    <!-- <Image Source="nav_right_green.ico" Margin="5,0,5,0" Width="20" /> -->
+                    <Image x:Name="ButtonImage" Height="32" Width="32">
+                        <Image.Style>
+                            <Style TargetType="{x:Type Image}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding isRuning}" Value="True">
+                                        <Setter Property="Source" Value="Icons-Land-Play-Stop-Pause-Pause-Normal.ico"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding isRuning}" Value="False">
+                                        <Setter Property="Source" Value="nav_right_green.ico"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    <TextBlock x:Name="SvrBtnText" Text="서버시작" VerticalAlignment="Center" Height="18" Width="70" />
+                </StackPanel>
+            </Button>            
         </WrapPanel>
 
     </Grid>

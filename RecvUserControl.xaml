@@ -34,13 +34,16 @@
                 <TextBlock Text="포트"/>
                 <TextBox x:Name="ethPort" Width="50" Margin="5,0,0,0">...</TextBox>
                 <CheckBox x:Name="autoSendCheck" Margin="5,0,0,0">자동전송</CheckBox>
-
+            </WrapPanel>
+            <WrapPanel Margin="5,5,0,0">
+                <Label Grid.Row="1" Grid.Column="0" Content="COM포트:" HorizontalAlignment="Left" Margin="5" />
+                <TextBlock  Grid.Row="1" Grid.Column="1"  x:Name="serialPort"  Text="TextBox" HorizontalAlignment="Left"  VerticalAlignment="Center" Width="120" Margin="5"/>
             </WrapPanel>
             <WrapPanel Margin="5,5,0,0">
                 <TextBlock Text="수신데이터"/>
                 <Button Click="SocketRxClear_Click"  Margin="15,0,0,0" Width="70">clear</Button>
             </WrapPanel>
-            <ListBox x:Name="SocketRxList" Height="300" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Stretch"  Background="Beige" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            <ListBox x:Name="CommRxList" Height="300" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Stretch"  Background="Beige" ScrollViewer.VerticalScrollBarVisibility="Auto" />
         </StackPanel>
 
     </Grid>

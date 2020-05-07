@@ -65,100 +65,113 @@ namespace HMCU_Sim
         }
         private void SocketServer_Click(object sender, RoutedEventArgs e)
         {
-
-            if (string.Compare(EthConnectionBtn.Content.ToString(), "서버 종료") == 0)
+            if(comm == CommMethod.Ethernet)
             {
-                try
+                if (string.Compare(ConnectionBtn.Content.ToString(), "서버 종료") == 0)
                 {
-                    /// 서버 종료시 처리
-                    EthConnectionBtn.Content = "서버 시작";
-
-                    runServer = false;
-
-                    if (csocketHandler != null)
+                    try
                     {
-                        csocketHandler.Dispose();                        
-                        csocketHandler.Close();
-                        
+                        /// 서버 종료시 처리
+                        //ConnectionBtn.Content = "서버 시작";
+                        SvrBtnText.Text = "서버 시작";
+                        isRuning = false;
+
+                        runServer = false;
+
+                        if (csocketHandler != null)
+                        {
+                            csocketHandler.Dispose();
+                            csocketHandler.Close();
+
+                        }
+
+                        if (g_listener != null)
+                        {
+                            g_listener.Dispose();
+                            g_listener.Close();
+
+                        }
+
+                        DisplayText(recvTabUsrCtrl.CommRxList, "서버가 종료 되었습니다.");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        DisplayText(recvTabUsrCtrl.CommRxList, ex.Message);
                     }
 
-                    if (g_listener != null)
-                    {
-                        g_listener.Dispose();
-                        g_listener.Close();
-                        
-                    }      
-
-                    DisplayText(recvTabUsrCtrl.SocketRxList, "서버가 종료 되었습니다.");
-
                 }
-                catch (Exception ex)
+                else
                 {
-                    DisplayText(recvTabUsrCtrl.SocketRxList, ex.Message);
+                    //ConnectionBtn.Content = "서버 종료";
+                    SvrBtnText.Text = "서버 종료";
+                    isRuning = true;
+
+
+                    runServer = true;
+
+                    byte[] tmp = new byte[4];
+                    // Establish the local endpoint for the socket.  
+                    // The DNS name of the computer  
+                    // running the listener is "host.contoso.com".  
+                    IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+                    IPAddress ipAddress = ipHostInfo.AddressList[0];
+                    // tmp = vdu1ip.GetAddressBytes();
+
+                    IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(recvTabUsrCtrl.ethIP.Text), Int32.Parse(recvTabUsrCtrl.ethPort.Text));
+                    //IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(LocalIPAddress()), Int32.Parse(recvTabUsrCtrl.ethPort.Text));
+
+
+                    // Create a TCP/IP socket.  
+                    // g_listener = new Socket(ipAddress.AddressFamily,
+                    //     SocketType.Stream, ProtocolType.Tcp);
+                    g_listener = new Socket(AddressFamily.InterNetwork,
+                        SocketType.Stream, ProtocolType.Tcp);
+
+                    int option = 1; ///SO_RESUADDR의 옵션 값을 TRUE로
+                    g_listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, option);
+
+                    // Bind the socket to the local endpoint and listen for incoming connections.  
+                    try
+                    {
+                        g_listener.Bind(localEndPoint);
+                        g_listener.Listen(100);
+                        new Thread(delegate ()
+                        {
+                            while (runServer)
+                            {
+                                // Set the event to nonsignaled state.  
+                                allDone.Reset();
+
+                                // Start an asynchronous socket to listen for connections.  
+                                Console.WriteLine("Waiting for a connection...");
+                                g_listener.BeginAccept(
+                                    new AsyncCallback(AcceptCallback),
+                                    g_listener);
+
+                                // Wait until a connection is made before continuing.  
+                                allDone.WaitOne();
+
+                            }
+                        }).Start();
+
+                        DisplayText(recvTabUsrCtrl.CommRxList, "서버가 시작 되었습니다.");
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        DisplayText(recvTabUsrCtrl.CommRxList, ex.Message);
+                    }
+
                 }
-               
             }
             else
             {
-                EthConnectionBtn.Content = "서버 종료";
-
-                runServer = true;
-
-                byte[] tmp = new byte[4];
-                // Establish the local endpoint for the socket.  
-                // The DNS name of the computer  
-                // running the listener is "host.contoso.com".  
-                IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                IPAddress ipAddress = ipHostInfo.AddressList[0];
-                // tmp = vdu1ip.GetAddressBytes();
-
-                IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(recvTabUsrCtrl.ethIP.Text), Int32.Parse(recvTabUsrCtrl.ethPort.Text));
-                //IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(LocalIPAddress()), Int32.Parse(recvTabUsrCtrl.ethPort.Text));
-
-
-                // Create a TCP/IP socket.  
-                // g_listener = new Socket(ipAddress.AddressFamily,
-                //     SocketType.Stream, ProtocolType.Tcp);
-                g_listener = new Socket(AddressFamily.InterNetwork,
-                    SocketType.Stream, ProtocolType.Tcp);
-
-                int option = 1; ///SO_RESUADDR의 옵션 값을 TRUE로
-                g_listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, option);
-
-                // Bind the socket to the local endpoint and listen for incoming connections.  
-                try
-                {
-                    g_listener.Bind(localEndPoint);
-                    g_listener.Listen(100);
-                    new Thread(delegate ()
-                    {
-                        while (runServer)
-                        {
-                            // Set the event to nonsignaled state.  
-                            allDone.Reset();
-
-                            // Start an asynchronous socket to listen for connections.  
-                            Console.WriteLine("Waiting for a connection...");
-                            g_listener.BeginAccept(
-                                new AsyncCallback(AcceptCallback),
-                                g_listener);
-
-                            // Wait until a connection is made before continuing.  
-                            allDone.WaitOne();
-
-                        }
-                    }).Start();
-
-                    DisplayText(recvTabUsrCtrl.SocketRxList, "서버가 시작 되었습니다.");
-
-
-                }
-                catch (Exception ex)
-                {
-                    DisplayText(recvTabUsrCtrl.SocketRxList, ex.Message);
-                }
-
+                 SerialConnet_Click(this, new RoutedEventArgs());
             }
+
+            
 
         }
 
@@ -183,7 +196,7 @@ namespace HMCU_Sim
                 handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
                     new AsyncCallback(ReadCallback), state);
                 if (handler.Connected)
-                    Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.SocketRxList, "클라이언트 연결!!");
+                    Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, "클라이언트 연결!!");
             }
             catch(SocketException ex)
             {
@@ -197,7 +210,7 @@ namespace HMCU_Sim
 
         private void UpdateButtonText(string str)
         {
-            EthConnectionBtn.Content = str;
+            ConnectionBtn.Content = str;
         }
 
         private void DisplayText(ListBox listBox, string str)
@@ -208,7 +221,7 @@ namespace HMCU_Sim
             {
                 listBox.Items.Clear();
             }
-            listBox.SelectedIndex = recvTabUsrCtrl.SocketRxList.Items.Count - 1;
+            listBox.SelectedIndex = recvTabUsrCtrl.CommRxList.Items.Count - 1;
             ScrollViewer _listboxScrollViewer = GetDescendantByType(listBox, typeof(ScrollViewer)) as ScrollViewer;
             _listboxScrollViewer.ScrollToEnd();
             return;
@@ -330,7 +343,7 @@ namespace HMCU_Sim
 
                             try
                             {
-                                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.SocketRxList, str);
+                                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, str);
                             }
                             catch (Exception ex)
                             {
@@ -362,7 +375,7 @@ namespace HMCU_Sim
                             handler.Close();
                             try
                             {
-                                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.SocketRxList, "클라이언트 연결 끊김!!");
+                                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, "클라이언트 연결 끊김!!");
                                 if (Form.runServer == false)
                                 {
                                     Form.Dispatcher.Invoke(new UpdateButtonTextDelegate(Form.UpdateButtonText), "서버 시작");
@@ -379,13 +392,13 @@ namespace HMCU_Sim
                     {
                         handler.Shutdown(SocketShutdown.Both);
                         handler.Close();
-                        Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.SocketRxList, "강제로 소켓 끊김");
+                        Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, "강제로 소켓 끊김");
                         Form.Dispatcher.Invoke(new UpdateButtonTextDelegate(Form.UpdateButtonText), "서버 시작");
                     }
                 }
                 else
                 {
-                    Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.SocketRxList, "Client 소켓이 유효하지 않음");
+                    Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, "Client 소켓이 유효하지 않음");
                 }
             }
             catch(Exception e)
@@ -396,8 +409,7 @@ namespace HMCU_Sim
                     //사람이 서버를 종료한 경우에 한하여 버튼을 바꾼다.
                     Form.Dispatcher.Invoke(new UpdateButtonTextDelegate(Form.UpdateButtonText), "서버 시작");
                 }
-                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.SocketRxList, "소켓 종료됨");
-                //Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), Form.SocketRxList, e.Message);
+                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, "소켓 종료됨");
             }
 
             
@@ -422,7 +434,7 @@ namespace HMCU_Sim
 
             try
             {
-                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), sndTab.SocketTxList, str);
+                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), sndTab.CommTxList, str);
             }
             catch (Exception ex)
             {
@@ -451,7 +463,7 @@ namespace HMCU_Sim
 
                         try
                         {
-                            Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), sndTab.SocketTxList, str);
+                            Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), sndTab.CommTxList, str);
                         }
                         catch (Exception ex)
                         {
@@ -462,7 +474,7 @@ namespace HMCU_Sim
             }
             catch(Exception e)
             {
-                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), sndTab.SocketTxList, e.ToString());
+                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), sndTab.CommTxList, e.ToString());
             }
             
             
@@ -504,12 +516,12 @@ namespace HMCU_Sim
                     }
                     else
                     {
-                        DisplayText(sndTabUsrCtrl.SocketTxList, "소켓이 끊겼습니다.");
+                        DisplayText(sndTabUsrCtrl.CommTxList, "소켓이 끊겼습니다.");
                     }
                 }
                 else
                 {
-                    DisplayText(sndTabUsrCtrl.SocketTxList, "소켓이 연결되지 않았습니다");
+                    DisplayText(sndTabUsrCtrl.CommTxList, "소켓이 연결되지 않았습니다");
                 }
                 
             }

@@ -143,7 +143,7 @@
                 <Button Click="Ack_Click"  Margin="5,0,0,0" Width="70">Ack</Button>
                 <Button Margin="5,0,0,0" Width="70" Click="Nack_Click" Content="Nack" />
             </WrapPanel>
-            <ListBox x:Name="SocketTxList" Height="295" HorizontalAlignment="Stretch" Margin="5" Background="#FFF0DAF3" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            <ListBox x:Name="CommTxList" Height="295" HorizontalAlignment="Stretch" Margin="5" Background="#FFF0DAF3" ScrollViewer.VerticalScrollBarVisibility="Auto" />
         </StackPanel>
 
     </Grid>

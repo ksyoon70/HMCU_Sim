@@ -135,7 +135,17 @@ namespace HMCU_Sim
                 GetPrivateProfileString("SYSTEM", "SYNC_METHOD", "0", temp, 255, PROGRAM_INI_FULLPATH);
                 count = Convert.ToInt32(temp.ToString());
                 m_form.sndTabUsrCtrl.syncMethod.SelectedIndex = count;
-            
+
+                // 시리얼 포트 읽기
+                GetPrivateProfileString("SERIAL", "PORT", "COM1", temp, 255, PROGRAM_INI_FULLPATH);
+                m_form.Port = temp.ToString();
+                /// 시리얼 BPS 읽기
+                GetPrivateProfileString("SERIAL", "SPEED", "9600", temp, 255, PROGRAM_INI_FULLPATH);
+                m_form.Speed = temp.ToString();
+
+                /// 통신방식 설정
+                GetPrivateProfileString("SYSTEM", "COMMETHOD", CommMethod.Serial.ToString(), temp, 255, PROGRAM_INI_FULLPATH);
+                m_form.comm = (CommMethod)Enum.Parse(typeof(CommMethod), temp.ToString());
             }
 
             /// <summary>
@@ -185,6 +195,13 @@ namespace HMCU_Sim
 
                 // 싱크 방식
                 WritePrivateProfileString("SYSTEM", "SYNC_METHOD", m_form.sndTabUsrCtrl.syncMethod.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
+
+                // 시리얼 포트 저장
+                WritePrivateProfileString("SERIAL", "PORT", m_form.Port, PROGRAM_INI_FULLPATH);
+                // 시리얼 속도 저장
+                WritePrivateProfileString("SERIAL", "SPEED", m_form.Speed, PROGRAM_INI_FULLPATH);
+                /// 통신방식 저장
+                WritePrivateProfileString("SYSTEM", "COMMETHOD", m_form.comm.ToString(), PROGRAM_INI_FULLPATH);
             }
 
             /// <summary>
