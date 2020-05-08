@@ -5,20 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HMCU_Sim"
         mc:Ignorable="d"
-        Title="하이패스 MCU 시뮬레이터" Height="450" Width="800">
+        Title="하이패스 MCU 시뮬레이터" Height="512" Width="799">
     <Grid ShowGridLines="True" Background="AliceBlue">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />            
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-            <TabControl Name="tcSample" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" >
+        <TabControl Name="tcSample" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" >
             <TabItem x:Name="rcvTabCtrl" Header="수신">
-                <local:RecvUserControl/>                
+                <local:RecvUserControl/>
             </TabItem>
             <TabItem x:Name="sndTabCtrl" Header="송신">
                 <!--<Frame Source="RecvUserControl.xaml"/> -->
@@ -26,7 +26,7 @@
             </TabItem>
 
         </TabControl>
-            <WrapPanel HorizontalAlignment="Right"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+        <WrapPanel HorizontalAlignment="Right"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
             <GroupBox Margin="15,0,0,0"  HorizontalAlignment="Left"  Background="White" Header="연결방식" BorderBrush="LightBlue">
                 <StackPanel>
                     <RadioButton IsChecked="{Binding IsEther}" GroupName = "CommMethod" >이더넷</RadioButton>
@@ -70,7 +70,7 @@
                     </Image>
                     <TextBlock x:Name="SvrBtnText" Text="서버시작" VerticalAlignment="Center" Height="18" Width="70" />
                 </StackPanel>
-            </Button>            
+            </Button>
         </WrapPanel>
 
     </Grid>

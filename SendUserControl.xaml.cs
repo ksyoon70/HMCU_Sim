@@ -433,7 +433,8 @@ namespace HMCU_Sim
 
         private void MakeTimeData(out byte[] data)
         {
-            data = new byte[EthHeader.TimeLen];
+            EthHeader ethHeader = new EthHeader();
+            data = new byte[ethHeader.TimeLen];
             Array.Clear(data, 0, data.Length); //array clear
             byte[] bytes = BitConverter.GetBytes((Int16)0x1003);
             if (BitConverter.IsLittleEndian)
@@ -493,17 +494,28 @@ namespace HMCU_Sim
             ((MainWindow)System.Windows.Application.Current.MainWindow).SendTimeSync(data, data.Length);
         }
 
-        private void MakeHeartBeat(out byte[] data)
+        private void MakeHeartBeat(out byte[] data, CommMethod method)
         {
             int index = 0;
-            data = new byte[EthHeader.HeartBeatLen];
-            data[0] = Protocols.STX;
-            data[1] = EthHeader.HeartBeatLen;
+            FrameHeader fheader;
 
-            index += EthHeader.HeartBeatLen;
+            if (method == CommMethod.Ethernet)
+            {
+                fheader = new EthHeader();
+            }
+            else
+            {
+                fheader = new SerialHeader();
+            }
+
+            data = new byte[fheader.HeartBeatLen];
+            data[0] = Protocols.STX;
+            data[1] = fheader.HeartBeatLen;
+
+            index += fheader.HeartBeatLen;
 
         }
-        public bool MakeEtherFrame(int code, out byte[] data)
+        public bool MakeFrame(int code, out byte[] data, CommMethod method)
         {
 
             DateTime dt = DateTime.Now;
@@ -515,57 +527,69 @@ namespace HMCU_Sim
             int sec = dt.Second;
             int intValue;
 
+
+            FrameHeader fheader;
+
+            if(method == CommMethod.Ethernet)
+            {
+                fheader = new EthHeader();
+            }
+            else
+            {
+                fheader = new SerialHeader();
+            }
+
             byte[] bYear = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(year);
 
             switch (code)
             {
                 case Code.ACK:
-                    data = new byte[EthHeader.AckLen + EthHeader.extraLen];
+                    data = new byte[fheader.AckLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = EthHeader.AckLen;
+                    data[1] = fheader.AckLen;
                     break;
                 case Code.NACK:
-                    data = new byte[EthHeader.NackLen + EthHeader.extraLen];
+                    data = new byte[fheader.NackLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = EthHeader.NackLen;
+                    data[1] = fheader.NackLen;
                     break;
                 case Code.VIO_NUMBER_SYNC:
-                    data = new byte[EthHeader.VioNumberSync + EthHeader.extraLen];
+                    data = new byte[fheader.VioNumberSync + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = EthHeader.VioNumberSync;
+                    data[1] = fheader.VioNumberSync;
                     break;
                 case Code.WORK_START:
-                    data = new byte[EthHeader.WorkStartLen + EthHeader.extraLen];
+                    data = new byte[fheader.WorkStartLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = EthHeader.WorkStartLen;
+                    data[1] = fheader.WorkStartLen;
                     break;
                 case Code.WORK_END:
-                    data = new byte[EthHeader.WorkEndLen + EthHeader.extraLen];
+                    data = new byte[fheader.WorkEndLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = EthHeader.WorkEndLen;
+                    data[1] = fheader.WorkEndLen;
                     break;
                 case Code.STATUS_REQ:
-                    data = new byte[EthHeader.HeartBeatLen + EthHeader.extraLen];
+                    data = new byte[fheader.HeartBeatLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = EthHeader.HeartBeatLen;
+                    data[1] = fheader.HeartBeatLen;
                     break;
                 case Code.VIO_CONFIRM_RES:
-                    data = new byte[EthHeader.ConfirmLen + EthHeader.extraLen];
+                    data = new byte[fheader.ConfirmLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = EthHeader.ConfirmLen;
+                    data[1] = fheader.ConfirmLen;
                     break;
                 case Code.VIO_CONFIRM_RES_N:
-                    data = new byte[EthHeader.ConfirmNewLen + EthHeader.extraLen];
+                    data = new byte[fheader.ConfirmNewLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = EthHeader.ConfirmNewLen;
+                    data[1] = fheader.ConfirmNewLen;
                     break;
                 case Code.IMAGE_CONFIRM:
-                    data = new byte[EthHeader.ImageConfirmLen + EthHeader.extraLen];
+                    data = new byte[fheader.ImageConfirmLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = EthHeader.ImageConfirmLen;
+                    data[1] = fheader.ImageConfirmLen;
                     break;
                 default:
-                    data = new byte[100 + EthHeader.extraLen];
+                    data = new byte[100 + fheader.ExtraLen];
                     break;
             }
 
@@ -1350,8 +1374,9 @@ namespace HMCU_Sim
         /// <param name="e"></param>
         private void HeartBeat_Click(object sender, RoutedEventArgs e)
         {
-            MakeEtherFrame(Code.STATUS_REQ, out byte[] data);
+            MakeFrame(Code.STATUS_REQ, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
             ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
         }
 
         public void OnPropertyChanged(string propertyName)
@@ -1371,9 +1396,10 @@ namespace HMCU_Sim
             uint saveProcNum = ProcNumber1;
             for (cycleNum = 1; cycleNum <= maxLoop; cycleNum++)
             {
-                if (MakeEtherFrame(Code.VIO_CONFIRM_RES, out byte[] data) == true)
+                if (MakeFrame(Code.VIO_CONFIRM_RES, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm) == true)
                 {
-                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);                   
+                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+                    //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
                 }
             }
 
@@ -1420,9 +1446,10 @@ namespace HMCU_Sim
             uint saveProcNum = ProcNumber1;
             for (cycleNum = 1; cycleNum <= maxLoop; cycleNum++)
             {
-                if (MakeEtherFrame(Code.VIO_CONFIRM_RES_N, out byte[] data) == true)
+                if (MakeFrame(Code.VIO_CONFIRM_RES_N, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm) == true)
                 {
                     ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+                    //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
                 }
             }
 
@@ -1468,8 +1495,9 @@ namespace HMCU_Sim
         /// <param name="e"></param>
         private void WorkStart_Click(object sender, RoutedEventArgs e)
         {
-            MakeEtherFrame(Code.WORK_START, out byte[] data);
+            MakeFrame(Code.WORK_START, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
             ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
         }
         /// <summary>
         /// 근무종료
@@ -1478,8 +1506,9 @@ namespace HMCU_Sim
         /// <param name="e"></param>
         private void WorkEnd_Click(object sender, RoutedEventArgs e)
         {
-            MakeEtherFrame(Code.WORK_END, out byte[] data);
+            MakeFrame(Code.WORK_END, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
             ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
         }
         /// <summary>
         /// Sync Frame
@@ -1488,8 +1517,9 @@ namespace HMCU_Sim
         /// <param name="e"></param>
         private void SyncFrame_Click(object sender, RoutedEventArgs e)
         {
-            MakeEtherFrame(Code.VIO_NUMBER_SYNC, out byte[] data);
+            MakeFrame(Code.VIO_NUMBER_SYNC, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
             ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
         }
         /// <summary>
         /// 영상확정 처리기
@@ -1508,9 +1538,10 @@ namespace HMCU_Sim
                        
                         for(int j = 0; j < procList[i].ProcNumCnt;  j++)
                         {
-                            MakeEtherFrame(Code.IMAGE_CONFIRM, out byte[] data);
+                            MakeFrame(Code.IMAGE_CONFIRM, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
                             ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
-                            
+                            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
+
                         }
                         procList[i].sndImgCfm = true;
                         procList.RemoveAt(i);
@@ -1527,14 +1558,16 @@ namespace HMCU_Sim
 
         private void Nack_Click(object sender, RoutedEventArgs e)
         {
-            MakeEtherFrame(Code.NACK, out byte[] data);
+            MakeFrame(Code.NACK, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
             ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
         }
 
         private void Ack_Click(object sender, RoutedEventArgs e)
         {
-            MakeEtherFrame(Code.ACK, out byte[] data);
+            MakeFrame(Code.ACK, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
             ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
         }
     }
 }

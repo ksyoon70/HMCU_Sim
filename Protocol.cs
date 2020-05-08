@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,20 +47,52 @@ namespace HMCU_Sim
         public const byte Data = 0x04;
     }
 
-    static class EthHeader
+
+    public abstract class FrameHeader
     {
-        public const byte FLen = 10;
-        public const byte TimeLen = 14;
-        public const byte TLen = 48;
-        public const byte HeartBeatLen = 9;
-        public const byte ConfirmLen = 29;
-        public const byte ConfirmNewLen = 41;
-        public const byte WorkStartLen = 16;
-        public const byte WorkEndLen = 16;
-        public const byte VioNumberSync = 4;
-        public const byte ImageConfirmLen = 15;         //영상확정 길이
-        public const byte AckLen = 2;
-        public const byte NackLen = 2;
-        public const byte extraLen = 3;     //STX, LEN, ETX 갯수
+        public byte FLen = 10;
+        public byte TimeLen = 14;
+        public byte TLen = 48;
+        public byte HeartBeatLen = 9;
+        public byte ConfirmLen = 29;
+        public byte ConfirmNewLen = 41;
+        public byte WorkStartLen = 16;
+        public byte WorkEndLen = 16;
+        public byte VioNumberSync = 4;
+        public byte ImageConfirmLen = 15;         //영상확정 길이
+        public byte AckLen = 2;
+        public byte NackLen = 2;
+        private byte extraLen = 3;     //STX, LEN, ETX 갯수
+        public  virtual byte ExtraLen
+        {
+            get
+            {
+                return extraLen;
+            }
+        }
+    }
+
+    public class EthHeader : FrameHeader
+    {
+        private  byte extraLen = 3;     //STX, LEN, ETX 갯수
+        public override byte ExtraLen
+        {
+            get
+            {
+                return extraLen;
+            }
+        }
+    }
+
+    public class SerialHeader : FrameHeader
+    {
+        private  byte extraLen = 6;     //STX, LEN, ETX 갯수
+        public override byte ExtraLen
+        {
+            get
+            {
+                return extraLen;
+            }
+        }
     }
 }

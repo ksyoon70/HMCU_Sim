@@ -24,6 +24,93 @@ namespace HMCU_Sim
     using DWORD = System.UInt32;
     using WORD = System.UInt16;
 
+    public class EtherHandler : CommHandler
+    {
+
+        private Socket csocketHandler;
+        private AsyncCallback m_callback;
+
+        public EtherHandler()
+        {
+            m_callback = null;
+        }
+
+        public EtherHandler(AsyncCallback callback)
+        {
+            m_callback = callback;
+        }
+
+        /// <summary>
+        /// SocketHandler 설정
+        /// </summary>
+        public Socket CSocketHandler
+        {
+            get
+            {
+                return (csocketHandler);
+            }
+            set
+            {
+                csocketHandler = value;
+            }
+        }
+
+        /// <summary>
+        /// 송신을 재정의한다.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="len"></param>
+        public override void Send(byte[] buffer, int offset, int size, SocketFlags socketFlags, AsyncCallback callback, object state)
+        {
+            m_callback = callback;
+            csocketHandler.BeginSend(buffer, offset, size, socketFlags,
+                m_callback, (state == null) ? csocketHandler : state);
+        }
+
+        public override void Send(byte[] buffer, int size)
+        {
+            csocketHandler.BeginSend(buffer, 0, size, 0,
+                m_callback, csocketHandler);
+        }
+
+        public override void Close()
+        {
+            if(csocketHandler != null)
+            {
+                csocketHandler.Shutdown(SocketShutdown.Both);
+                csocketHandler.Close();
+                csocketHandler.Dispose();
+                csocketHandler = null;
+            }
+            
+        }
+        /// <summary>
+        /// 소켓이 유효한지를 나타낸다.
+        /// </summary>
+        /// <returns></returns>
+        public override bool IsRun()
+        {
+            bool status = false;
+
+            if(csocketHandler != null)
+            {
+                status = true;
+            }
+
+            return status;
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            return 0;
+        }
+
+        public override bool IsConnected()
+        {
+            return csocketHandler.Connected;
+        }
+    }
+
     public partial class MainWindow : Window
     {
 
@@ -36,8 +123,6 @@ namespace HMCU_Sim
         public static MainWindow Form;
         public static RecvUserControl recvTab;
         public static SendUserControl sndTab;
-
-        private Socket csocketHandler;
 
         private WORD msgCnt;
 
@@ -67,7 +152,7 @@ namespace HMCU_Sim
         {
             if(comm == CommMethod.Ethernet)
             {
-                if (string.Compare(ConnectionBtn.Content.ToString(), "서버 종료") == 0)
+                if (string.Compare(SvrBtnText.Text, "서버 종료") == 0)
                 {
                     try
                     {
@@ -78,10 +163,11 @@ namespace HMCU_Sim
 
                         runServer = false;
 
-                        if (csocketHandler != null)
+                        if (commHandler.IsRun())
                         {
-                            csocketHandler.Dispose();
-                            csocketHandler.Close();
+                            commHandler.Close();
+                            //csocketHandler.Dispose();
+                            //csocketHandler.Close();
 
                         }
 
@@ -192,7 +278,8 @@ namespace HMCU_Sim
                 // Create the state object.  
                 StateObject state = new StateObject();
                 state.workSocket = handler;
-                Form.csocketHandler = handler;
+                EtherHandler eh = (EtherHandler)Form.commHandler;
+                eh.CSocketHandler = handler;
                 handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
                     new AsyncCallback(ReadCallback), state);
                 if (handler.Connected)
@@ -210,7 +297,8 @@ namespace HMCU_Sim
 
         private void UpdateButtonText(string str)
         {
-            ConnectionBtn.Content = str;
+            //ConnectionBtn.Content = str;
+            SvrBtnText.Text = str;
         }
 
         private void DisplayText(ListBox listBox, string str)
@@ -235,7 +323,8 @@ namespace HMCU_Sim
             // from the asynchronous state object.  
             StateObject state = (StateObject)ar.AsyncState;
             Socket handler = state.workSocket;
-            Form.csocketHandler = handler;
+            EtherHandler eh = (EtherHandler)Form.commHandler;
+            eh.CSocketHandler = handler;
 
             try
             {
@@ -282,11 +371,8 @@ namespace HMCU_Sim
                                         {
                                             recvTab.SeqNum = (int)state.buffer[Frame.Seq];  ///전송연번 업데이트
                                             //ACK를 보내줌.
-                                            sndTab.MakeEtherFrame(Code.ACK, out byte[] data);
-                                            Send(handler, data);
-                                            //Thread.Sleep(100);
-                                            //sndTab.MakeEtherFrame(Code.VIO_CONFIRM_RES, out byte[] data1);
-                                            //Send(handler, data1);
+                                            sndTab.MakeFrame(Code.ACK, out byte[] data, Form.comm);
+                                            Send(data);
                                         }
                                         break;
                                     case Code.VIO_CONFIRM_REQ:   ///위반확인요구 수신
@@ -359,7 +445,7 @@ namespace HMCU_Sim
                                 Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
                                     content.Length, content);
                                 // Echo the data back to the client.  
-                                Send(handler, content);
+                                Send(content);
                             }
                             else
                             {
@@ -416,14 +502,16 @@ namespace HMCU_Sim
             
         }
 
-        private static void Send(Socket handler, String data)
+        private static void Send( String data)
         {
             // Convert the string data to byte data using ASCII encoding.  
             byte[] byteData = Encoding.ASCII.GetBytes(data);
 
             // Begin sending the data to the remote device.  
-            handler.BeginSend(byteData, 0, byteData.Length, 0,
-                new AsyncCallback(SendCallback), handler);
+
+            //Form.commHandler.Send(byteData, 0, byteData.Length, 0,
+            //                new AsyncCallback(SendCallback), null);
+            Form.commHandler.Send(byteData, byteData.Length);
 
             string str = string.Empty;
 
@@ -442,17 +530,18 @@ namespace HMCU_Sim
             }
         }
 
-        private static void Send(Socket handler, byte[] byteData)
+        private static void Send( byte[] byteData)
         {
             try
             {
-                if (handler != null)
+                if (Form.commHandler.IsRun() == true)
                 {
-                    if (handler.Connected)
+                    if (Form.commHandler.IsConnected())
                     {
                         // Begin sending the data to the remote device.  
-                        handler.BeginSend(byteData, 0, byteData.Length, 0,
-                            new AsyncCallback(SendCallback), handler);
+                        //Form.commHandler.Send(byteData, 0, byteData.Length,0,
+                        //    new AsyncCallback(SendCallback), null);
+                        Form.commHandler.Send(byteData, byteData.Length);
 
                         string str = string.Empty;
 
@@ -500,37 +589,6 @@ namespace HMCU_Sim
                 Console.WriteLine(e.ToString());
             }
         }
-        public void SocketTxSend()
-        {
-            try
-            {
-                if(csocketHandler != null)
-                {
-                    if (csocketHandler.Connected == true)
-                    {
-
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("test");
-
-                        Send(csocketHandler, sb.ToString());
-                    }
-                    else
-                    {
-                        DisplayText(sndTabUsrCtrl.CommTxList, "소켓이 끊겼습니다.");
-                    }
-                }
-                else
-                {
-                    DisplayText(sndTabUsrCtrl.CommTxList, "소켓이 연결되지 않았습니다");
-                }
-                
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-           
-        }
         /// <summary>
         /// 이더넷 헤더를 만든는 함수
         /// </summary>
@@ -540,7 +598,9 @@ namespace HMCU_Sim
         /// <param name="header">출력</param>
         private void MakeEthHeader(int Datalen, byte retryCnt, byte[] devCode, out byte [] header)
         {
-            header = new byte[EthHeader.FLen];
+            EthHeader ethHeader = new EthHeader();
+
+            header = new byte[ethHeader.FLen];
             header[0] = Protocols.STX;
             byte[] bytes = BitConverter.GetBytes(msgCnt);
             if (BitConverter.IsLittleEndian)
@@ -566,14 +626,16 @@ namespace HMCU_Sim
 
             byte [] bdevCode = BitConverter.GetBytes(device);
             Array.Reverse(bdevCode);
-            
 
-            MakeEthHeader(EthHeader.TLen, 0, bdevCode, out byte[] header);
+            EthHeader ethHeader = new EthHeader();
+
+            MakeEthHeader(ethHeader.TLen, 0, bdevCode, out byte[] header);
             byte[] frame = new byte[header.Length + len + 1];
             Buffer.BlockCopy(header, 0, frame, 0, header.Length);
             Buffer.BlockCopy(data, 0, frame, header.Length, len);
             frame[frame.Length - 1] = Protocols.ETX;
-            Send(csocketHandler, frame);
+
+            Send(frame);
         }
 
         public void SendTimeSync(byte[] data, int len)
@@ -583,24 +645,24 @@ namespace HMCU_Sim
             byte[] bdevCode = BitConverter.GetBytes(device);
             Array.Reverse(bdevCode);
 
+            EthHeader ethHeader = new EthHeader();
 
-            MakeEthHeader(EthHeader.TimeLen, 0, bdevCode, out byte[] header);
+            MakeEthHeader(ethHeader.TimeLen, 0, bdevCode, out byte[] header);
             byte[] frame = new byte[header.Length + len + 1];
             Buffer.BlockCopy(header, 0, frame, 0, header.Length);
             Buffer.BlockCopy(data, 0, frame, header.Length, len);
             frame[frame.Length - 1] = Protocols.ETX;
-            Send(csocketHandler, frame);
+            Send(frame);
         }
 
         public void SendHeartBeat(byte[] data, int len)
         {
-
-            Send(csocketHandler, data);
+            Send(data);
         }
 
         public void SendEtherData(byte[] data, int len)
         {
-            Send(csocketHandler, data);
+            Send(data);
         }
 
         public byte[] ByteToBCD(int input)

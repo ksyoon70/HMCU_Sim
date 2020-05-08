@@ -54,12 +54,14 @@ namespace HMCU_Sim
 
         public Socket g_listener = null;
 
-        SerialPort m_Port = new SerialPort();
+         
 
         ConfigManager m_cfg;
         public ConfigManager GetCfgManager() => m_cfg;
 
         public CommMethod comm;
+
+        public CommHandler commHandler;
 
         /// <summary>
         /// 이더넷 방식인지 여부
@@ -171,6 +173,8 @@ namespace HMCU_Sim
             }
         }
 
+        public RecvBufferStruct recvBuff;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -199,9 +203,17 @@ namespace HMCU_Sim
             if(comm == CommMethod.Serial)
             {
                 this.Loaded += new RoutedEventHandler(InitSerialPort);
+                commHandler = new SerialHandler();
+            }
+            else
+            {
+                //commHandler = new EtherHandler();
+                commHandler = new EtherHandler(new AsyncCallback(SendCallback));         
             }
 
             isRuning = false;
+
+            recvBuff = new RecvBufferStruct();
 
         }
         protected void OnPropertyChanged(string propertyName)
@@ -218,11 +230,9 @@ namespace HMCU_Sim
 
                 runServer = false;
 
-                if (csocketHandler != null)
+                if (commHandler != null)
                 {
-                    csocketHandler.Shutdown(SocketShutdown.Both);
-                    csocketHandler.Close();
-                    csocketHandler.Dispose();
+                    commHandler.Close();
                 }
 
                 /// 서버 종료시 처리

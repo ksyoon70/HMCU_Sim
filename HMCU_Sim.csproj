@@ -57,10 +57,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CommHandler.cs" />
     <Compile Include="ConfigManager.cs" />
     <Compile Include="PacketStr.cs" />
     <Compile Include="ProcItem.cs" />
     <Compile Include="Protocol.cs" />
+    <Compile Include="RecvBufferStruct.cs" />
     <Compile Include="RecvUserControl.xaml.cs">
       <DependentUpon>RecvUserControl.xaml</DependentUpon>
     </Compile>
