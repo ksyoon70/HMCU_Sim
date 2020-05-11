@@ -63,6 +63,8 @@ namespace HMCU_Sim
 
         public CommHandler commHandler;
 
+        public FrameHeader frameHeader;
+
         /// <summary>
         /// 이더넷 방식인지 여부
         /// </summary>
@@ -204,11 +206,13 @@ namespace HMCU_Sim
             {
                 this.Loaded += new RoutedEventHandler(InitSerialPort);
                 commHandler = new SerialHandler();
+                frameHeader = new SerialHeader();
             }
             else
             {
                 //commHandler = new EtherHandler();
-                commHandler = new EtherHandler(new AsyncCallback(SendCallback));         
+                commHandler = new EtherHandler(new AsyncCallback(SendCallback));
+                frameHeader = new EthHeader();
             }
 
             isRuning = false;

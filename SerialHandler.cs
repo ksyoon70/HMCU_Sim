@@ -23,19 +23,6 @@ using System.Runtime.InteropServices;
 
 namespace HMCU_Sim
 {
-    /// <summary>
-    /// 시리얼 정의
-    /// </summary>
-    static class SerialDef
-    {
-        public const int BLen = 128;
-        /// <summary>
-        /// DLE 정의
-        /// </summary>
-        public const byte DLE = 0x10;
-        public const byte STX = 0x02;
-        public const byte ETX = 0x13;
-    }
 
     public class SerialHandler : CommHandler
     {
@@ -87,7 +74,7 @@ namespace HMCU_Sim
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-           return m_Port.Read(buffer, offset, count);
+           return m_Port.Read(buffer, offset, count - offset);
         }
        
         public void Init(string port, int BaudRate, SerialDataReceivedEventHandler recvHandler)
@@ -165,7 +152,12 @@ namespace HMCU_Sim
            // Array.Copy(recvBuff.buff, recvBuff.buffLen, array, 0, len);
             recvBuff.buffLen += len;
 
-            if (recvBuff.buff[recvBuff.buffLen - 2] != SerialDef.ETX || recvBuff.buff[recvBuff.buffLen - 3] != SerialDef.DLE)
+            if(recvBuff.buffLen <= frameHeader.ExtraLen)
+            {
+                return;
+            }
+
+            if (recvBuff.buff[recvBuff.buffLen - 2] != Protocols.ETX || recvBuff.buff[recvBuff.buffLen - 3] != Protocols.DLE)
             {
                 return;
             }
@@ -180,25 +172,45 @@ namespace HMCU_Sim
                 str += string.Format("[" + "{0:x2}" + "]", recvBuff.buff[i]);
             }
 
+            byte revBcc = recvBuff.buff[recvBuff.buffLen - 1];  //BCC 저장
+
 
             Array.Copy(recvBuff.buff,2, array, 0, recvBuff.buffLen - 5); // DLE STX ~ DLE ETX BCC 를 뺌.
-            int validSize = DelDLE(array, recvBuff.buffLen - 5);
+            int validSize = DelDLE(ref array, recvBuff.buffLen - 5);
+            Array.Copy(array, 0, recvBuff.buff, frameHeader.LenPos, validSize);
 
+            byte [] bccData = new byte[validSize - 1]; //LEN이 빠진 데이터 길이.
+
+            Array.Copy(array, 1, bccData, 0, bccData.Length);
+
+            byte calBcc = MainWindow.CalBCC(bccData, bccData.Length);
+
+            if(revBcc != calBcc)
+            {
+                recvBuff.reset();  //BCC 오류
+            }
+            else
+            {
+                recvBuff.buffLen = 5 + validSize;
+                recvBuff.buff[recvBuff.buffLen - 3] = Protocols.DLE;
+                recvBuff.buff[recvBuff.buffLen - 2] = Protocols.ETX;
+                recvBuff.buff[recvBuff.buffLen - 1] = revBcc;
+            }
 
             SerialRecvDelegate srdel = delegate ()
             {
-                switch(array[1])
+                switch(recvBuff.buff[frameHeader.CodePos])
                 {
                     case Code.ACK:
-                        recvTab.SeqNum = (int)recvBuff.buff[4];  ///전송연번 업데이트
+                        recvTab.SeqNum = (int)recvBuff.buff[frameHeader.SeqPos];  ///전송연번 업데이트
                         break;
                     case Code.NACK:
-                        recvTab.SeqNum = (int)recvBuff.buff[4];  ///전송연번 업데이트
+                        recvTab.SeqNum = (int)recvBuff.buff[frameHeader.SeqPos];  ///전송연번 업데이트
                         //추후 재전송 로직 추가
                         break;
                     case Code.STATUS_RES:  ///상태정보 수신
                     {
-                        recvTab.SeqNum = (int)recvBuff.buff[4];  ///전송연번 업데이트
+                        recvTab.SeqNum = (int)recvBuff.buff[frameHeader.SeqPos];  ///전송연번 업데이트
                             //ACK를 보내줌.
                             sndTab.MakeFrame(Code.ACK, out byte[] data, comm);
                         //sndTab.MakeSerialFrame(Code.ACK, out byte[] data);
@@ -207,7 +219,7 @@ namespace HMCU_Sim
                         break;
                     case Code.VIO_CONFIRM_REQ:   ///위반확인요구 수신
                     {
-                        recvTab.SeqNum = (int)recvBuff.buff[4];  ///전송연번 업데이트
+                        recvTab.SeqNum = (int)recvBuff.buff[frameHeader.SeqPos];  ///전송연번 업데이트
                         //ACK를 보내줌.
                         int nCopy = Marshal.SizeOf(typeof(PACKET_VIO_REQUEST));
                          byte[] _cpyArray = new byte[nCopy];
@@ -225,7 +237,7 @@ namespace HMCU_Sim
                          }
 
                         ProcItem pItem = new ProcItem();
-                        pItem.seq = recvBuff.buff[4];
+                        pItem.seq = recvBuff.buff[frameHeader.SeqPos];
                         pItem.vioNum = pVioReq.imagNum;
                         sndTab.procList.Add(pItem);
                         /// 영상번호 업데이트
@@ -238,7 +250,7 @@ namespace HMCU_Sim
                     break;
                     case Code.PLATE_RECOG_NOTIFY:
                     {
-                        recvTab.SeqNum = (int)recvBuff.buff[4]; ///전송연번 업데이트
+                        recvTab.SeqNum = (int)recvBuff.buff[frameHeader.SeqPos]; ///전송연번 업데이트
                     }
                     break;
                     default:
@@ -253,27 +265,79 @@ namespace HMCU_Sim
                 recvTabUsrCtrl.CommRxList.ScrollIntoView(recvTabUsrCtrl.CommRxList.SelectedItem);
             };
             this.Dispatcher.Invoke(srdel);
-        }
 
-        private int DelDLE(byte[] buf, int size)
+            recvBuff.reset();
+        }
+        /// <summary>
+        /// DLE를 삭제한다.
+        /// </summary>
+        /// <param name="buf"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public static int DelDLE(ref byte[] buf, int size)
         {
-            byte[] tmp = new byte[SerialDef.BLen];
+            byte[] tmp = new byte[Protocols.MAX_BUF_SIZE];
             int i;
             int index = 0;
-            Debug.Assert(size <= SerialDef.BLen);
+            Debug.Assert(size <= Protocols.MAX_BUF_SIZE);
             Array.Copy(buf, tmp, size);
             for (i = 0; i < size; i++)
             {
                 buf[index++] = tmp[i];
-                if (tmp[i] == SerialDef.DLE && tmp[i + 1] == SerialDef.DLE)
+                if (tmp[i] == Protocols.DLE && tmp[i + 1] == Protocols.DLE)
                 {
                     i++;
                 }
             }
             return index;
         }
+        /// <summary>
+        /// DLE를 추가하는 함수이다.
+        /// </summary>
+        /// <param name="buf"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public static int AddDLE(ref byte[] buf, int size)
+        {
+            byte[] tmp = new byte[Protocols.MAX_BUF_SIZE];
+            int i;
+            int index = 0;
+            Debug.Assert(size <= Protocols.MAX_BUF_SIZE);
+            Array.Copy(buf, tmp, size);
+            for (i = 0; i < size; i++)
+            {
+                buf[index++] = tmp[i];
+                if (tmp[i] == Protocols.DLE)
+                {
+                    buf[index++] = Protocols.DLE;
+                }
+            }
+            return index;
+        }
+        /// <summary>
+        /// BCC를 size까지 계산함.
+        /// </summary>
+        /// <param name="buf"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public static byte CalBCC(byte[] buf, int size)
+        {
+            byte bcc = 0x00;
+            byte nextValue;
 
+            for (int i = 0; i < size; i++)
+            {
+                nextValue = buf[i];
+                bcc = (byte)(bcc ^ nextValue);
+            }
 
+            if (bcc <= 0x20)
+            {
+                bcc += 20;
+            }
+
+            return bcc;
+        }
 
 
         private void ComConfigBtn_Click(object sender, RoutedEventArgs e)

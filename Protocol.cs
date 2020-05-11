@@ -19,6 +19,8 @@ namespace HMCU_Sim
         public const UInt16 STATE = 0x04;
         public const UInt16 IMG_INFO = 0x4101;
         public const UInt16 IMG_MATCH_INFO = 0x1401;
+
+        public const int MAX_BUF_SIZE = 128;
     }
 
     static class Code
@@ -70,6 +72,57 @@ namespace HMCU_Sim
                 return extraLen;
             }
         }
+
+        private byte sDLEPos = 0;    // Start DLE 위치
+        public virtual byte SDLEPos
+        {
+            get
+            {
+                return sDLEPos;
+            }
+        }
+
+        private byte stxPos = 0;    // STX 위치
+        public virtual byte StxPos
+        {
+            get
+            {
+                return stxPos;
+            }
+        }
+
+        private byte lenPos = 1;    // LEN 위치
+        public virtual byte LenPos
+        {
+            get
+            {
+                return lenPos;
+            }
+        }
+        private byte codePos = 2;    // Code 위치
+        public virtual byte CodePos
+        {
+            get
+            {
+                return codePos;
+            }
+        }
+        private byte seqPos = 3;    // Sequence 위치
+        public virtual byte SeqPos
+        {
+            get
+            {
+                return seqPos;
+            }
+        }
+        private byte dataPos = 4;    // Data 위치
+        public virtual byte DataPos
+        {
+            get
+            {
+                return dataPos;
+            }
+        }
     }
 
     public class EthHeader : FrameHeader
@@ -82,6 +135,7 @@ namespace HMCU_Sim
                 return extraLen;
             }
         }
+
     }
 
     public class SerialHeader : FrameHeader
@@ -92,6 +146,48 @@ namespace HMCU_Sim
             get
             {
                 return extraLen;
+            }
+        }
+
+        private byte stxPos = 1;    // STX 위치
+        public override byte StxPos
+        {
+            get
+            {
+                return stxPos;
+            }
+        }
+
+        private byte lenPos = 2;    // LEN 위치
+        public override byte LenPos
+        {
+            get
+            {
+                return lenPos;
+            }
+        }
+        private byte codePos = 3;    // Code 위치
+        public override byte CodePos
+        {
+            get
+            {
+                return codePos;
+            }
+        }
+        private byte seqPos = 4;    // Sequence 위치
+        public override byte SeqPos
+        {
+            get
+            {
+                return seqPos;
+            }
+        }
+        private byte dataPos = 5;    // Data 위치
+        public override byte DataPos
+        {
+            get
+            {
+                return dataPos;
             }
         }
     }

@@ -546,22 +546,22 @@ namespace HMCU_Sim
                 case Code.ACK:
                     data = new byte[fheader.AckLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = fheader.AckLen;
+                    data[fheader.LenPos] = fheader.AckLen;
                     break;
                 case Code.NACK:
                     data = new byte[fheader.NackLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = fheader.NackLen;
+                    data[fheader.LenPos] = fheader.NackLen;
                     break;
                 case Code.VIO_NUMBER_SYNC:
                     data = new byte[fheader.VioNumberSync + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = fheader.VioNumberSync;
+                    data[fheader.LenPos] = fheader.VioNumberSync;
                     break;
                 case Code.WORK_START:
                     data = new byte[fheader.WorkStartLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = fheader.WorkStartLen;
+                    data[fheader.LenPos] = fheader.WorkStartLen;
                     break;
                 case Code.WORK_END:
                     data = new byte[fheader.WorkEndLen + fheader.ExtraLen];
@@ -571,35 +571,39 @@ namespace HMCU_Sim
                 case Code.STATUS_REQ:
                     data = new byte[fheader.HeartBeatLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = fheader.HeartBeatLen;
+                    data[fheader.LenPos] = fheader.HeartBeatLen;
                     break;
                 case Code.VIO_CONFIRM_RES:
                     data = new byte[fheader.ConfirmLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = fheader.ConfirmLen;
+                    data[fheader.LenPos] = fheader.ConfirmLen;
                     break;
                 case Code.VIO_CONFIRM_RES_N:
                     data = new byte[fheader.ConfirmNewLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = fheader.ConfirmNewLen;
+                    data[fheader.LenPos] = fheader.ConfirmNewLen;
                     break;
                 case Code.IMAGE_CONFIRM:
                     data = new byte[fheader.ImageConfirmLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = fheader.ImageConfirmLen;
+                    data[fheader.LenPos] = fheader.ImageConfirmLen;
                     break;
                 default:
                     data = new byte[100 + fheader.ExtraLen];
                     break;
             }
 
-           
-            data[0] = Protocols.STX;
-            data[2] = (byte)code;  //CODE
+            if (method == CommMethod.Serial)
+            {
+                ///시리얼 전송일 때만 DLE를 추가한다.
+                data[fheader.SDLEPos] = Protocols.DLE;
+            }
+            data[fheader.StxPos] = Protocols.STX;
+            data[fheader.CodePos] = (byte)code;  //CODE
             if(code == Code.ACK || code == Code.NACK)
             {
                 int seq = ((MainWindow)System.Windows.Application.Current.MainWindow).recvTabUsrCtrl.SeqNum;
-                data[3] = (byte)seq;
+                data[fheader.SeqPos] = (byte)seq;
             }
             else
             {
@@ -609,7 +613,7 @@ namespace HMCU_Sim
                 }
                 else
                 {
-                    data[3] = (byte)SeqNum;
+                    data[fheader.SeqPos] = (byte)SeqNum;
                     SeqNum = SeqNum + 1;
                     if (SeqNum == 0x100)
                     {
@@ -618,10 +622,18 @@ namespace HMCU_Sim
                 }
                 
             }
-           
 
-            data[data.Length - 1] = Protocols.ETX;
-            int index = 4;
+            if (method == CommMethod.Ethernet)
+            {
+                data[data.Length - 1] = Protocols.ETX;
+            }
+            else
+            {
+                //data[data.Length - 3] = Protocols.DLE;
+                //data[data.Length - 2] = Protocols.ETX;
+            }
+            
+            int index = fheader.DataPos;
 
             switch (code)
             {
@@ -862,7 +874,7 @@ namespace HMCU_Sim
                                             find = true;
                                             //전송연번으로 동기화 할때.
                                             int seq = procList[k].seq;
-                                            data[3] = (byte)seq;
+                                            data[fheader.SeqPos] = (byte)seq;
                                             break;
                                         }
                                     }
@@ -906,7 +918,7 @@ namespace HMCU_Sim
                                             procList[k].ProcNum[1] = ProcNumber2;
                                             procList[k].ProcNumCnt++;
                                             int seq = procList[k].seq;
-                                            data[3] = (byte)seq;
+                                            data[fheader.SeqPos] = (byte)seq;
                                             find = true;
                                             break;
                                         }
@@ -951,7 +963,7 @@ namespace HMCU_Sim
                                             procList[k].ProcNum[2] = ProcNumber3;
                                             procList[k].ProcNumCnt++;
                                             int seq = procList[k].seq;
-                                            data[3] = (byte)seq;
+                                            data[fheader.SeqPos] = (byte)seq;
                                             find = true;
                                             break;
                                         }
@@ -995,7 +1007,7 @@ namespace HMCU_Sim
                                             procList[k].ProcNum[3] = ProcNumber4;
                                             procList[k].ProcNumCnt++;
                                             int seq = procList[k].seq;
-                                            data[3] = (byte)seq;
+                                            data[fheader.SeqPos] = (byte)seq;
                                             find = true;
                                             break;
                                         }
@@ -1139,7 +1151,7 @@ namespace HMCU_Sim
                                             find = true;
                                             //전송연번으로 동기화 할때.
                                             int seq = procList[k].seq;
-                                            data[3] = (byte)seq;
+                                            data[fheader.SeqPos] = (byte)seq;
                                             break;
                                         }
                                     }
@@ -1183,7 +1195,7 @@ namespace HMCU_Sim
                                             procList[k].ProcNum[1] = ProcNumber2;
                                             procList[k].ProcNumCnt++;
                                             int seq = procList[k].seq;
-                                            data[3] = (byte)seq;
+                                            data[fheader.SeqPos] = (byte)seq;
                                             find = true;
                                             break;
                                         }
@@ -1228,7 +1240,7 @@ namespace HMCU_Sim
                                             procList[k].ProcNum[2] = ProcNumber3;
                                             procList[k].ProcNumCnt++;
                                             int seq = procList[k].seq;
-                                            data[3] = (byte)seq;
+                                            data[fheader.SeqPos] = (byte)seq;
                                             find = true;
                                             break;
                                         }
@@ -1273,7 +1285,7 @@ namespace HMCU_Sim
                                             procList[k].ProcNum[3] = ProcNumber4;
                                             procList[k].ProcNumCnt++;
                                             int seq = procList[k].seq;
-                                            data[3] = (byte)seq;
+                                            data[fheader.SeqPos] = (byte)seq;
                                             find = true;
                                             break;
                                         }
@@ -1362,6 +1374,27 @@ namespace HMCU_Sim
                     break;
                 default:
                     break;
+            }
+
+            
+            if (method == CommMethod.Serial)
+            {
+                //BCC계산.
+                byte[] bccData = new byte[data.Length - fheader.ExtraLen]; //DLE,STX, LEN은 빼고...
+                Array.Copy(data, fheader.CodePos, bccData, 0, bccData.Length);
+                byte calBcc = MainWindow.CalBCC(bccData, bccData.Length);
+                //DLE 추가
+                byte[] dleData = new byte[data.Length*2];  //충분한 버퍼 확보
+                int dleSize = data.Length - fheader.ExtraLen + 1;
+                Array.Copy(data, fheader.LenPos, dleData, 0, dleSize);
+                int dleDataLen = MainWindow.AddDLE(ref dleData, dleSize);
+                Array.Resize(ref data, dleDataLen + fheader.ExtraLen -1);
+
+                Array.Copy(dleData, 0, data, fheader.LenPos, dleDataLen);
+
+                data[data.Length - 3] = Protocols.DLE;
+                data[data.Length - 2] = Protocols.ETX;
+                data[data.Length - 1] = calBcc;
             }
 
             return true;
