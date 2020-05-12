@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HMCU_Sim"
         mc:Ignorable="d"
+        Icon="Cornmanthe3rd-Plex-Communication-gadu-gadu.ico"
         Title="하이패스 MCU 시뮬레이터" Height="512" Width="799">
     <Grid ShowGridLines="True" Background="AliceBlue">
         <Grid.RowDefinitions>

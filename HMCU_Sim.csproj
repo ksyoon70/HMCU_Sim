@@ -35,6 +35,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Cornmanthe3rd-Plex-Communication-gadu-gadu.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -136,6 +139,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons-Land-Play-Stop-Pause-Pause-Normal.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Cornmanthe3rd-Metronome-Communication-messenger-blue.ico" />
+    <Resource Include="Cornmanthe3rd-Plex-Communication-gadu-gadu.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

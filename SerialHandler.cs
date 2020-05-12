@@ -167,9 +167,11 @@ namespace HMCU_Sim
                 recvBuff.reset();
             }
 
+            StringBuilder sb = new StringBuilder();
+
             for (int i = 0; i < recvBuff.buffLen; i++)
             {
-                str += string.Format("[" + "{0:x2}" + "]", recvBuff.buff[i]);
+                sb.Append(string.Format("[" + "{0:x2}" + "]", recvBuff.buff[i]));
             }
 
             byte revBcc = recvBuff.buff[recvBuff.buffLen - 1];  //BCC 저장
@@ -211,15 +213,21 @@ namespace HMCU_Sim
                     case Code.STATUS_RES:  ///상태정보 수신
                     {
                         recvTab.SeqNum = (int)recvBuff.buff[frameHeader.SeqPos];  ///전송연번 업데이트
-                            //ACK를 보내줌.
-                            sndTab.MakeFrame(Code.ACK, out byte[] data, comm);
-                        //sndTab.MakeSerialFrame(Code.ACK, out byte[] data);
-                            commHandler.Send(data,data.Length);
+                        //ACK를 보내줌.
+                        sndTab.MakeFrame(Code.ACK, out byte[] data, comm);
+                        data[frameHeader.SeqPos] = recvBuff.buff[frameHeader.SeqPos];
+                        //commHandler.Send(data,data.Length);
+                        MainWindow.Send(data);
                     }
-                        break;
+                    break;
                     case Code.VIO_CONFIRM_REQ:   ///위반확인요구 수신
                     {
+                       
                         recvTab.SeqNum = (int)recvBuff.buff[frameHeader.SeqPos];  ///전송연번 업데이트
+                        sndTab.MakeFrame(Code.ACK, out byte[] data, comm);
+                        data[frameHeader.SeqPos] = recvBuff.buff[frameHeader.SeqPos];
+                        //commHandler.Send(data, data.Length);
+                        MainWindow.Send(data);
                         //ACK를 보내줌.
                         int nCopy = Marshal.SizeOf(typeof(PACKET_VIO_REQUEST));
                          byte[] _cpyArray = new byte[nCopy];
@@ -251,13 +259,18 @@ namespace HMCU_Sim
                     case Code.PLATE_RECOG_NOTIFY:
                     {
                         recvTab.SeqNum = (int)recvBuff.buff[frameHeader.SeqPos]; ///전송연번 업데이트
+                        sndTab.MakeFrame(Code.ACK, out byte[] data, comm);
+                        data[frameHeader.SeqPos] = recvBuff.buff[frameHeader.SeqPos];
+                        //commHandler.Send(data, data.Length);
+                        MainWindow.Send(data);
+                       
                     }
                     break;
                     default:
                     break;
                  }
 
-                recvTabUsrCtrl.CommRxList.Items.Add(str);
+                recvTabUsrCtrl.CommRxList.Items.Add(sb.ToString());
                 if (recvTabUsrCtrl.CommRxList.Items.Count > 100)
                 {
                     recvTabUsrCtrl.CommRxList.Items.Clear();

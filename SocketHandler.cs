@@ -543,16 +543,16 @@ namespace HMCU_Sim
                         //    new AsyncCallback(SendCallback), null);
                         Form.commHandler.Send(byteData, byteData.Length);
 
-                        string str = string.Empty;
+                        StringBuilder sb = new StringBuilder();
 
                         foreach (byte b in byteData)
                         {
-                            str += string.Format("[" + "{0:x2}" + "]", b);
+                            sb.Append(string.Format("[" + "{0:x2}" + "]", b));
                         }
 
                         try
                         {
-                            Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), sndTab.CommTxList, str);
+                            Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), sndTab.CommTxList, sb.ToString());
                         }
                         catch (Exception ex)
                         {
