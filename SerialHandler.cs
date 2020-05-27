@@ -343,12 +343,12 @@ namespace HMCU_Sim
                 nextValue = buf[i];
                 bcc = (byte)(bcc ^ nextValue);
             }
-
+            /*
             if (bcc <= 0x20)
             {
                 bcc += 20;
             }
-
+            */
             return bcc;
         }
 

@@ -539,7 +539,8 @@ namespace HMCU_Sim
                 fheader = new SerialHeader();
             }
 
-            byte[] bYear = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(year);
+            //byte[] bYear = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(year);
+            byte[] bYear = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(year);
 
             switch (code)
             {
@@ -667,19 +668,24 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)hour;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)minute;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
 
                         /// 근무형태
@@ -708,19 +714,24 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)hour;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)minute;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
 
                         /// 근무형태
@@ -749,19 +760,24 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)hour;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)minute;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
                     }
                     break;
@@ -814,19 +830,24 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)hour;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)minute;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
                         //VioType은 나중에 할것이므로 기억만 만하고 있다가 나중에 처리
                         vioTypeIndex = index;
@@ -834,10 +855,12 @@ namespace HMCU_Sim
 
                         //근무번호
                         intValue = Convert.ToInt32(LaneNumber);
-                        byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        //byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                         Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         intValue = Convert.ToInt32(WorkNumber);
-                        byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        //byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        byte [] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                         Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
                         index += Marshal.SizeOf(typeof(short));
 
@@ -845,10 +868,12 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
                        
@@ -1092,27 +1117,34 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)hour;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)minute;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
 
                         ///근무번호
                         intValue = Convert.ToInt32(LaneNumber);
-                        byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        //byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                         Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         intValue = Convert.ToInt32(WorkNumber);
-                        byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        //byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
+                        byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                         Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
                         index += Marshal.SizeOf(typeof(short));
 
@@ -1124,10 +1156,12 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                        data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
 
@@ -1323,7 +1357,8 @@ namespace HMCU_Sim
                         index += Marshal.SizeOf(typeof(Byte));
                         /// 영업소 번호
                         intValue = Convert.ToInt32(OfficeNumber);
-                        byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(intValue);
+                        // byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(intValue);
+                        byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                         Buffer.BlockCopy(boffice, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
                         index += 10; ///reserved
@@ -1338,22 +1373,32 @@ namespace HMCU_Sim
                         {
                             /// 영업소 번호
                             intValue = Convert.ToInt32(OfficeNumber);
-                            byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(intValue);
+                            //byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(intValue);
+                            byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                             Buffer.BlockCopy(boffice, 0, data, index, Marshal.SizeOf(typeof(short)));
                             index += Marshal.SizeOf(typeof(short));
                             ///근무일자
                             Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                             index += Marshal.SizeOf(typeof(short));
 
-                            Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                            // Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                            data[index] = (byte)month;
                             index += Marshal.SizeOf(typeof(Byte));
 
-                            Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                            //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                            data[index] = (byte)day;
                             index += Marshal.SizeOf(typeof(Byte));
 
                             ///근무번호
-                            byte[] bWorkNum = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(Convert.ToInt32(WorkNumber));
-                            Buffer.BlockCopy(bWorkNum, 0, data, index, Marshal.SizeOf(typeof(short)));
+                            //byte[] bWorkNum = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(Convert.ToInt32(WorkNumber));
+                            //Buffer.BlockCopy(bWorkNum, 0, data, index, Marshal.SizeOf(typeof(short)));
+                            //index += Marshal.SizeOf(typeof(short));
+                            intValue = Convert.ToInt32(LaneNumber);
+                            byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
+                            Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
+                            intValue = Convert.ToInt32(WorkNumber);
+                            byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
+                            Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
                             index += Marshal.SizeOf(typeof(short));
 
                             /// 처리번호 (통합차로제어기 부여)

@@ -697,6 +697,20 @@ namespace HMCU_Sim
 
             return bcd;
         }
+        /// <summary>
+        /// int형 data를 little endian byte array로 바꾸는 함수.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public byte[] INT2LE(int data)
+        {
+            byte[] b = new byte[4];
+            b[0] = (byte)data;
+            b[1] = (byte)(((uint)data >> 8) & 0xFF);
+            b[2] = (byte)(((uint)data >> 16) & 0xFF);
+            b[3] = (byte)(((uint)data >> 24) & 0xFF);
+            return b;
+        }
 
         public byte[] Int32ToBCD(Int32 input)
         {
