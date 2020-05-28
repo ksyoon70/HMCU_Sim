@@ -405,6 +405,7 @@ namespace HMCU_Sim
             }
 
             procList = new List<ProcItem>();
+                        
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
@@ -563,7 +564,7 @@ namespace HMCU_Sim
                 case Code.WORK_END:
                     data = new byte[fheader.WorkEndLen + fheader.ExtraLen];
                     Array.Clear(data, 0, data.Length);
-                    data[1] = fheader.WorkEndLen;
+                    data[fheader.LenPos] = fheader.WorkEndLen;
                     break;
                 case Code.STATUS_REQ:
                     data = new byte[fheader.HeartBeatLen + fheader.ExtraLen];

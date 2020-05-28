@@ -200,6 +200,7 @@ namespace HMCU_Sim
             recvTab = recvTabUsrCtrl;
             sndTab = sndTabUsrCtrl;
             othTab = othTabUsrCtrl;
+            sndTabUsrCtrl.othTabUsrCtrl = othTab;
 
             recvTabUsrCtrl.ethIP.Text = SvrIP;
             recvTabUsrCtrl.ethPort.Text = svrport;
