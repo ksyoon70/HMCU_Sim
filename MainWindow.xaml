@@ -25,6 +25,10 @@
                 <!--<Frame Source="RecvUserControl.xaml"/> -->
                 <local:SendUserControl/>
             </TabItem>
+            <TabItem x:Name="othTabCtrl" Header="기타">
+                <!--<Frame Source="RecvUserControl.xaml"/> -->
+                <local:OtherUserControl/>
+            </TabItem>
 
         </TabControl>
         <WrapPanel HorizontalAlignment="Right"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">

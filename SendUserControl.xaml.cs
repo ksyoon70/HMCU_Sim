@@ -35,7 +35,7 @@ namespace HMCU_Sim
         private string[] syncMethods = new string[] { "전송연번", "위반번호" };
         private string[] confTime = new string[] { "위반응답", "영상확정" };
 
-        private int cycleNum; // 처리갯수
+        public int cycleNum; // 처리갯수
 
         public List<ProcItem> procList;
 
