@@ -126,6 +126,7 @@ namespace HMCU_Sim
 
         public RecvUserControl recvTabUsrCtrl;
         public SendUserControl sndTabUsrCtrl;
+        public OtherUserControl othTabUsrCtrl;
 
         delegate void SerialRecvDelegate();
 
@@ -186,6 +187,7 @@ namespace HMCU_Sim
 
             recvTabUsrCtrl = (RecvUserControl)rcvTabCtrl.Content;
             sndTabUsrCtrl = (SendUserControl)sndTabCtrl.Content;
+            othTabUsrCtrl = (OtherUserControl)othTabCtrl.Content;
 
             Form = this;
 
@@ -197,6 +199,7 @@ namespace HMCU_Sim
 
             recvTab = recvTabUsrCtrl;
             sndTab = sndTabUsrCtrl;
+            othTab = othTabUsrCtrl;
 
             recvTabUsrCtrl.ethIP.Text = SvrIP;
             recvTabUsrCtrl.ethPort.Text = svrport;
@@ -638,6 +641,22 @@ namespace HMCU_Sim
 
 
             return sb.ToString();
+        }
+
+        private void IsEtherSerial_Checked(object sender, RoutedEventArgs e)
+        {
+            if (comm == CommMethod.Serial)
+            {
+                this.Loaded += new RoutedEventHandler(InitSerialPort);
+                commHandler = new SerialHandler();
+                frameHeader = new SerialHeader();
+            }
+            else
+            {
+                //commHandler = new EtherHandler();
+                commHandler = new EtherHandler(new AsyncCallback(SendCallback));
+                frameHeader = new EthHeader();
+            }
         }
 
     }

@@ -25,13 +25,17 @@
                 <!--<Frame Source="RecvUserControl.xaml"/> -->
                 <local:SendUserControl/>
             </TabItem>
+            <TabItem x:Name="othTabCtrl" Header="기타">
+                <!--<Frame Source="RecvUserControl.xaml"/> -->
+                <local:OtherUserControl/>
+            </TabItem>
 
         </TabControl>
         <WrapPanel HorizontalAlignment="Right"  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
             <GroupBox Margin="15,0,0,0"  HorizontalAlignment="Left"  Background="White" Header="연결방식" BorderBrush="LightBlue">
                 <StackPanel>
-                    <RadioButton IsChecked="{Binding IsEther}" GroupName = "CommMethod" >이더넷</RadioButton>
-                    <RadioButton IsChecked="{Binding IsSerial}" GroupName = "CommMethod" >시리얼</RadioButton>
+                    <RadioButton IsChecked="{Binding IsEther}" GroupName = "CommMethod" Checked="IsEtherSerial_Checked" >이더넷</RadioButton>
+                    <RadioButton IsChecked="{Binding IsSerial}" GroupName = "CommMethod" Checked="IsEtherSerial_Checked" >시리얼</RadioButton>
                 </StackPanel>
             </GroupBox>
             <Button Click="ComConfigBtn_Click" Margin="5">

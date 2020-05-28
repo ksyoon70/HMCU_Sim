@@ -35,7 +35,7 @@ namespace HMCU_Sim
         private string[] syncMethods = new string[] { "전송연번", "위반번호" };
         private string[] confTime = new string[] { "위반응답", "영상확정" };
 
-        private int cycleNum; // 처리갯수
+        public int cycleNum; // 처리갯수
 
         public List<ProcItem> procList;
 
@@ -347,6 +347,8 @@ namespace HMCU_Sim
                 OnPropertyChanged("VioNumber");
             }
         }
+
+        public OtherUserControl othTabUsrCtrl;
         //타이머 시작
         DispatcherTimer dispatcherTimer = new DispatcherTimer();
         public SendUserControl()
@@ -390,11 +392,6 @@ namespace HMCU_Sim
                 vioType4.Items.Add(vt);
             }
 
-            // 확정위치
-            foreach (string loc in confLocation)
-            {
-                cnfComboBox.Items.Add(loc);
-            }
            //동기방식
            foreach(string synm in syncMethods)
             {
@@ -408,7 +405,6 @@ namespace HMCU_Sim
             }
 
             procList = new List<ProcItem>();
-
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
@@ -1408,7 +1404,7 @@ namespace HMCU_Sim
                             index += Marshal.SizeOf(typeof(UInt32));
 
                             //확정위치
-                            data[index] = (byte)(cnfComboBox.SelectedIndex + 1);  // 1이면 전면 2이면 후면.
+                            data[index] = (byte)(othTabUsrCtrl.cnfComboBox.SelectedIndex + 1);  // 1이면 전면 2이면 후면.
                         }
                         else
                         {

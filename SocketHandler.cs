@@ -75,14 +75,14 @@ namespace HMCU_Sim
 
         public override void Close()
         {
-            if(csocketHandler != null)
+            if (csocketHandler != null)
             {
                 csocketHandler.Shutdown(SocketShutdown.Both);
                 csocketHandler.Close();
                 csocketHandler.Dispose();
                 csocketHandler = null;
             }
-            
+
         }
         /// <summary>
         /// 소켓이 유효한지를 나타낸다.
@@ -92,7 +92,7 @@ namespace HMCU_Sim
         {
             bool status = false;
 
-            if(csocketHandler != null)
+            if (csocketHandler != null)
             {
                 status = true;
             }
@@ -123,6 +123,7 @@ namespace HMCU_Sim
         public static MainWindow Form;
         public static RecvUserControl recvTab;
         public static SendUserControl sndTab;
+        public static OtherUserControl othTab;
 
         private WORD msgCnt;
 
@@ -150,7 +151,7 @@ namespace HMCU_Sim
         }
         private void SocketServer_Click(object sender, RoutedEventArgs e)
         {
-            if(comm == CommMethod.Ethernet)
+            if (comm == CommMethod.Ethernet)
             {
                 if (string.Compare(SvrBtnText.Text, "서버 종료") == 0)
                 {
@@ -186,6 +187,15 @@ namespace HMCU_Sim
                         DisplayText(recvTabUsrCtrl.CommRxList, ex.Message);
                     }
 
+                }
+                else if(SvrBtnText.Text == "시리얼 종료")
+                {
+                    // 시리얼이 연결되어있을 경우 시리얼 종료
+                    SvrBtnText.Text = "서버 시작";
+                    isRuning = false;
+
+                    commHandler.Close();
+                    recvTabUsrCtrl.CommRxList.Items.Add("종료 되었습니다.");
                 }
                 else
                 {
@@ -254,10 +264,10 @@ namespace HMCU_Sim
             }
             else
             {
-                 SerialConnet_Click(this, new RoutedEventArgs());
+                SerialConnet_Click(this, new RoutedEventArgs());
             }
 
-            
+
 
         }
 
@@ -285,14 +295,14 @@ namespace HMCU_Sim
                 if (handler.Connected)
                     Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, "클라이언트 연결!!");
             }
-            catch(SocketException ex)
+            catch (SocketException ex)
             {
                 //Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), Form.SocketRxList, ex.Message);
             }
-           
+
         }
 
-        private delegate void UpdateTextDelegate(ListBox listBox,string str);
+        private delegate void UpdateTextDelegate(ListBox listBox, string str);
         private delegate void UpdateButtonTextDelegate(string str);
 
         private void UpdateButtonText(string str)
@@ -303,7 +313,7 @@ namespace HMCU_Sim
 
         private void DisplayText(ListBox listBox, string str)
         {
-            
+
             listBox.Items.Add(str);
             if (listBox.Items.Count > 100)
             {
@@ -357,9 +367,9 @@ namespace HMCU_Sim
                             Form.Dispatcher.Invoke(() =>
                             {
                                 //code 로 메시지 확인
-                                switch(state.buffer[Frame.Code])
+                                switch (state.buffer[Frame.Code])
                                 {
-                                    
+
                                     case Code.ACK:
                                         recvTab.SeqNum = (int)state.buffer[Frame.Seq];  ///전송연번 업데이트
                                         break;
@@ -385,11 +395,11 @@ namespace HMCU_Sim
                                             int nCopy = Marshal.SizeOf(typeof(PACKET_VIO_REQUEST));
                                             byte[] _cpyArray = new byte[nCopy];
 
-                                            Array.Copy(state.buffer, Frame.Data, _cpyArray, 0,nCopy);
+                                            Array.Copy(state.buffer, Frame.Data, _cpyArray, 0, nCopy);
 
                                             //위반확인응답을 보내줌.
                                             PACKET_VIO_REQUEST pVioReq = (PACKET_VIO_REQUEST)PacketMethods.ByteToStructure(_cpyArray, typeof(PACKET_VIO_REQUEST));
-                                            if(pVioReq.imgStatus ==  0x00)
+                                            if (pVioReq.imgStatus == 0x00)
                                             {
                                                 recvTab.triggerStatus.Text = "정상";
                                             }
@@ -404,12 +414,63 @@ namespace HMCU_Sim
                                             sndTab.procList.Add(pItem);
                                             /// 영상번호 업데이트
                                             recvTab.imageNum.Text = pVioReq.imagNum.ToString();
-                                            if(sndTab.syncMethod.SelectedIndex == 1)
+                                            if (sndTab.syncMethod.SelectedIndex == 1)
                                             {
                                                 sndTab.VioNumber = pVioReq.imagNum;
                                             }
-                                            
 
+                                            //위반확인자동응답 체크 시 전송을 수행함.
+                                            if (othTab.autoVioSendCheck.IsChecked == true)
+                                            {
+                                                int maxLoop = sndTab.pcComboBox.SelectedIndex + 1;
+                                                uint saveProcNum = sndTab.ProcNumber1;
+                                                for (sndTab.cycleNum = 1; sndTab.cycleNum <= maxLoop; sndTab.cycleNum++)
+                                                {
+                                                    if (sndTab.MakeFrame(Code.VIO_CONFIRM_RES, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm) == true)
+                                                    {
+                                                        ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+                                                        //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
+                                                    }
+                                                }
+
+                                                for (int k = 0; k < sndTab.procList.Count; k++)
+                                                {
+                                                    if (sndTab.procList[k].sndVioReq == false && sndTab.procList[k].ProcNumCnt > 0)
+                                                    {
+                                                        //위반확인응답을 보냄.
+                                                        sndTab.procList[k].sndVioReq = true;
+                                                        break;
+                                                    }
+                                                }
+                                                ///싱크 번호가 이미지 번호가 아니면 그냥 MCU Sim에서 번호를 증가 한다.
+                                                if (sndTab.syncMethod.SelectedIndex != 1)
+                                                {
+                                                    ///위반번호 증가
+                                                    sndTab.VioNumber = sndTab.VioNumber + 1;
+                                                    if (sndTab.VioNumber == 0xFFFF)
+                                                    {
+                                                        sndTab.VioNumber = 1;
+                                                    }
+                                                }
+
+                                                sndTab.ProcNumber1 = saveProcNum;
+                                                sndTab.ProcNumber1 += (uint)maxLoop;
+                                                sndTab.ProcNumber2 = sndTab.ProcNumber1 + 1;
+                                                sndTab.ProcNumber3 = sndTab.ProcNumber2 + 1;
+                                                sndTab.ProcNumber4 = sndTab.ProcNumber3 + 1;
+
+                                                for (int k = 0; k < sndTab.procList.Count; k++)
+                                                {
+                                                    if (othTab.autoConfirmSendCheck.IsChecked == false)
+                                                    {
+                                                        if (sndTab.procList[k].sndVioReq == true && sndTab.cftComboBox.SelectedIndex == 0)
+                                                        {
+                                                            //위반확인에서 영상확정이고, 위반확인을 보내면 item 삭제
+                                                            sndTab.procList.RemoveAt(k);
+                                                        }
+                                                    }
+                                                }
+                                            }
                                             //sndTab.MakeEtherFrame(Code.VIO_CONFIRM_RES, out byte[] data);
                                             //Send(handler, data);
 
@@ -418,6 +479,36 @@ namespace HMCU_Sim
                                     case Code.PLATE_RECOG_NOTIFY:
                                         {
                                             recvTab.SeqNum = (int)state.buffer[Frame.Seq];  ///전송연번 업데이트
+
+                                            //영상확장자동전송 체크 시 전송을 수행함.
+                                            if (othTab.autoConfirmSendCheck.IsChecked == true)
+                                            {
+                                                int procNum = sndTab.procList.Count;
+                                                if (sndTab.procList.Count > 0)
+                                                {
+                                                    for (int i = 0; i < sndTab.procList.Count; i++)
+                                                    {
+                                                        if (sndTab.procList[i].sndVioReq == true && sndTab.procList[i].sndImgCfm == false)
+                                                        {
+
+                                                            for (int j = 0; j < sndTab.procList[i].ProcNumCnt; j++)
+                                                            {
+                                                                sndTab.MakeFrame(Code.IMAGE_CONFIRM, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
+                                                                ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+                                                                //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
+
+                                                            }
+                                                            sndTab.procList[i].sndImgCfm = true;
+                                                            sndTab.procList.RemoveAt(i);
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                                //else
+                                                //{
+                                                //    MessageBox.Show("영상 확정을 보낼 것이 없습니다");
+                                                //}
+                                            }
                                         }
                                         break;
                                     default:
@@ -487,7 +578,7 @@ namespace HMCU_Sim
                     Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, "Client 소켓이 유효하지 않음");
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
 
                 if (Form.runServer == false)
@@ -498,11 +589,11 @@ namespace HMCU_Sim
                 Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, "소켓 종료됨");
             }
 
-            
-            
+
+
         }
 
-        private static void Send( String data)
+        private static void Send(String data)
         {
             // Convert the string data to byte data using ASCII encoding.  
             byte[] byteData = Encoding.ASCII.GetBytes(data);
@@ -530,7 +621,7 @@ namespace HMCU_Sim
             }
         }
 
-        private static void Send( byte[] byteData)
+        private static void Send(byte[] byteData)
         {
             try
             {
@@ -561,12 +652,12 @@ namespace HMCU_Sim
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), sndTab.CommTxList, e.ToString());
             }
-            
-            
+
+
         }
 
         private static void SendCallback(IAsyncResult ar)
@@ -596,7 +687,7 @@ namespace HMCU_Sim
         /// <param name="retryCnt">재시도 횟수</param>
         /// <param name="devSerial">장비명</param>
         /// <param name="header">출력</param>
-        private void MakeEthHeader(int Datalen, byte retryCnt, byte[] devCode, out byte [] header)
+        private void MakeEthHeader(int Datalen, byte retryCnt, byte[] devCode, out byte[] header)
         {
             EthHeader ethHeader = new EthHeader();
 
@@ -620,11 +711,11 @@ namespace HMCU_Sim
 
         }
 
-        public void SendMatchInfo(byte [] data, int len)
+        public void SendMatchInfo(byte[] data, int len)
         {
             int device = ((int)or << 7) | devNum;
 
-            byte [] bdevCode = BitConverter.GetBytes(device);
+            byte[] bdevCode = BitConverter.GetBytes(device);
             Array.Reverse(bdevCode);
 
             EthHeader ethHeader = new EthHeader();
@@ -751,7 +842,7 @@ namespace HMCU_Sim
         {
             WORD result = 0;
             result += (WORD)(1000 * (bcd[0] >> 4));
-            result += (WORD)(100 *(bcd[0] & 0xf));
+            result += (WORD)(100 * (bcd[0] & 0xf));
             result += (WORD)(10 * (bcd[1] >> 4));
             result += (WORD)(bcd[1] & 0xf);
             return result;
@@ -767,11 +858,11 @@ namespace HMCU_Sim
             int size = Marshal.SizeOf(param);
             int result = 0;
             int j = 0;
-            for(int i = 0; i< size; i++)
+            for (int i = 0; i < size; i++)
             {
-                result += (int)(Math.Pow(10, 2*size - 1 - j) * (bcd[i] >> 4));
+                result += (int)(Math.Pow(10, 2 * size - 1 - j) * (bcd[i] >> 4));
                 j++;
-                result += (int)(Math.Pow(10, 2*size - 1 - j) * (bcd[i] & 0x0f));
+                result += (int)(Math.Pow(10, 2 * size - 1 - j) * (bcd[i] & 0x0f));
                 j++;
             }
             return result;

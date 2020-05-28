@@ -40,8 +40,6 @@
             <WrapPanel Margin="5,5,0,0">
                 <TextBlock Text="근무형태:"/>
                 <ComboBox ItemsSource="{Binding Worktypes}" DisplayMemberPath="Name" x:Name="wkComboBox" Margin="5,0,0,0" Width="70" ></ComboBox>
-                <TextBlock Margin="5,5,0,0" Text="확정차로:"/>
-                <ComboBox x:Name="cnfComboBox" Margin="5,0,0,0" Width="100" ></ComboBox>
             </WrapPanel>
             <WrapPanel Margin="5,5,0,0">
                 <TextBlock Text="위반일시"/>
