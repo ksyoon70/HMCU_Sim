@@ -643,5 +643,21 @@ namespace HMCU_Sim
             return sb.ToString();
         }
 
+        private void IsEtherSerial_Checked(object sender, RoutedEventArgs e)
+        {
+            if (comm == CommMethod.Serial)
+            {
+                this.Loaded += new RoutedEventHandler(InitSerialPort);
+                commHandler = new SerialHandler();
+                frameHeader = new SerialHeader();
+            }
+            else
+            {
+                //commHandler = new EtherHandler();
+                commHandler = new EtherHandler(new AsyncCallback(SendCallback));
+                frameHeader = new EthHeader();
+            }
+        }
+
     }
 }

@@ -188,6 +188,15 @@ namespace HMCU_Sim
                     }
 
                 }
+                else if(SvrBtnText.Text == "시리얼 종료")
+                {
+                    // 시리얼이 연결되어있을 경우 시리얼 종료
+                    SvrBtnText.Text = "서버 시작";
+                    isRuning = false;
+
+                    commHandler.Close();
+                    recvTabUsrCtrl.CommRxList.Items.Add("종료 되었습니다.");
+                }
                 else
                 {
                     //ConnectionBtn.Content = "서버 종료";

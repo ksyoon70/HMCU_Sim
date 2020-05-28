@@ -115,6 +115,37 @@ namespace HMCU_Sim
                     recvTabUsrCtrl.CommRxList.Items.Add("종료 되었습니다.");
 
                 }
+                else if(SvrBtnText.Text == "서버 종료")
+                {
+                    // 소켓이 연결되어있을 경우 소켓 종료
+                    try
+                    {
+                        /// 서버 종료시 처리
+                        SvrBtnText.Text = "서버 시작";
+                        isRuning = false;
+
+                        runServer = false;
+
+                        if (commHandler.IsRun())
+                        {
+                            commHandler.Close();
+                        }
+
+                        if (g_listener != null)
+                        {
+                            g_listener.Dispose();
+                            g_listener.Close();
+
+                        }
+
+                        DisplayText(recvTabUsrCtrl.CommRxList, "서버가 종료 되었습니다.");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        DisplayText(recvTabUsrCtrl.CommRxList, ex.Message);
+                    }
+                }
                 else
                 {
                     //ConnectionBtn.Content = "시리얼 종료";
