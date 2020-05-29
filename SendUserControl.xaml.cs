@@ -512,7 +512,7 @@ namespace HMCU_Sim
             index += fheader.HeartBeatLen;
 
         }
-        public bool MakeFrame(int code, out byte[] data, CommMethod method)
+        public bool MakeFrame(int code, out byte[] data, CommMethod method, ref ProcItem pItem)
         {
 
             DateTime dt = DateTime.Now;
@@ -1449,9 +1449,9 @@ namespace HMCU_Sim
         /// <param name="e"></param>
         private void HeartBeat_Click(object sender, RoutedEventArgs e)
         {
-            MakeFrame(Code.STATUS_REQ, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
-            ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
-            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
+            ProcItem item = null;
+            MakeFrame(Code.STATUS_REQ, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
+            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
         }
 
         public void OnPropertyChanged(string propertyName)
@@ -1471,10 +1471,10 @@ namespace HMCU_Sim
             uint saveProcNum = ProcNumber1;
             for (cycleNum = 1; cycleNum <= maxLoop; cycleNum++)
             {
-                if (MakeFrame(Code.VIO_CONFIRM_RES, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm) == true)
+                ProcItem item = null;
+                if (MakeFrame(Code.VIO_CONFIRM_RES, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
                 {
-                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
-                    //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
+                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
                 }
             }
 
@@ -1521,10 +1521,11 @@ namespace HMCU_Sim
             uint saveProcNum = ProcNumber1;
             for (cycleNum = 1; cycleNum <= maxLoop; cycleNum++)
             {
-                if (MakeFrame(Code.VIO_CONFIRM_RES_N, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm) == true)
+                ProcItem item = null;
+
+                if (MakeFrame(Code.VIO_CONFIRM_RES_N, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
                 {
-                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
-                    //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
+                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
                 }
             }
 
@@ -1570,8 +1571,9 @@ namespace HMCU_Sim
         /// <param name="e"></param>
         private void WorkStart_Click(object sender, RoutedEventArgs e)
         {
-            MakeFrame(Code.WORK_START, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
-            ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+            ProcItem item = null; 
+            MakeFrame(Code.WORK_START, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
+            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
             //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
         }
         /// <summary>
@@ -1581,8 +1583,9 @@ namespace HMCU_Sim
         /// <param name="e"></param>
         private void WorkEnd_Click(object sender, RoutedEventArgs e)
         {
-            MakeFrame(Code.WORK_END, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
-            ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+            ProcItem item = null; 
+            MakeFrame(Code.WORK_END, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
+            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
             //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
         }
         /// <summary>
@@ -1592,8 +1595,10 @@ namespace HMCU_Sim
         /// <param name="e"></param>
         private void SyncFrame_Click(object sender, RoutedEventArgs e)
         {
-            MakeFrame(Code.VIO_NUMBER_SYNC, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
-            ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
+            ProcItem item = null;
+
+            MakeFrame(Code.VIO_NUMBER_SYNC, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
+            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
             //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
         }
         /// <summary>
@@ -1608,18 +1613,21 @@ namespace HMCU_Sim
             {
                 for(int i = 0; i < procList.Count; i++)
                 {
-                    if(procList[i].sndVioReq == true && procList[i].sndImgCfm == false)
+                    if(procList[i].sndVioReq == true)
                     {
                        
                         for(int j = 0; j < procList[i].ProcNumCnt;  j++)
                         {
-                            MakeFrame(Code.IMAGE_CONFIRM, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
-                            ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
-                            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
+                            ProcItem item = procList[i];
+                            MakeFrame(Code.IMAGE_CONFIRM, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
+                            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
+                            procList[i].sndImgCfm++;
 
                         }
-                        procList[i].sndImgCfm = true;
-                        procList.RemoveAt(i);
+                        if(procList[i].ProcNumCnt == procList[i].sndImgCfm)
+                        {
+                            procList.RemoveAt(i);  //영상확정을 보내면 삭제한다.
+                        }
                         break;
                     }
                 }
@@ -1633,16 +1641,16 @@ namespace HMCU_Sim
 
         private void Nack_Click(object sender, RoutedEventArgs e)
         {
-            MakeFrame(Code.NACK, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
-            ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
-            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
+            ProcItem item = null;
+            MakeFrame(Code.NACK, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
+            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
         }
 
         private void Ack_Click(object sender, RoutedEventArgs e)
         {
-            MakeFrame(Code.ACK, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm);
-            ((MainWindow)System.Windows.Application.Current.MainWindow).SendEtherData(data, data.Length);
-            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
+            ProcItem item = null;
+            MakeFrame(Code.ACK, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
+            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
         }
     }
 }

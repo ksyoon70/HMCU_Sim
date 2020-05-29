@@ -177,6 +177,8 @@ namespace HMCU_Sim
         }
 
         public RecvBufferStruct recvBuff;
+        public RecvBufferStruct dataBuf;
+        public int lastLen;
 
         public MainWindow()
         {
@@ -222,6 +224,8 @@ namespace HMCU_Sim
             isRuning = false;
 
             recvBuff = new RecvBufferStruct();
+
+            dataBuf = new RecvBufferStruct();
 
         }
         protected void OnPropertyChanged(string propertyName)
