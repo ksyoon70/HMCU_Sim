@@ -665,23 +665,18 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)hour;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)minute;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
 
@@ -711,23 +706,17 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
-
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)hour;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)minute;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
 
@@ -757,23 +746,18 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)hour;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)minute;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
                     }
@@ -786,7 +770,7 @@ namespace HMCU_Sim
                         // 위반확인요청이 없으면 종료한다.
                         if (procList.Count == 0)
                         {
-                            MessageBox.Show("수신된 위반확인 요구가 없습니다.");
+                            MessageBox.Show("수신 item 0입니다. 수신된 위반확인 요구가 없습니다.");
                             return false;
                         }
 
@@ -796,21 +780,19 @@ namespace HMCU_Sim
                         byte[] intBytes;
                         if (syncMethod.SelectedIndex == 1)
                         {//영상번호(위반번호)로 싱크를 맞추면..
-                            for (int k = 0; k < procList.Count; k++)
+
+                            if (pItem.sndVioReq == false)
                             {
-                                if (procList[k].sndVioReq == false)
-                                {
-                                    intBytes = BitConverter.GetBytes(procList[k].vioNum);
-                                    Buffer.BlockCopy(intBytes, 0, data, index, Marshal.SizeOf(typeof(short)));
-                                    findList = true;
-                                    //전송연번으로 동기화 할때.
-                                    break;
-                                }
+                                intBytes = BitConverter.GetBytes(pItem.vioNum);
+                                Buffer.BlockCopy(intBytes, 0, data, index, Marshal.SizeOf(typeof(short)));
+                                findList = true;
+  
                             }
+
                         }
                         else
                         {
-                            intBytes = BitConverter.GetBytes(VioNumber);
+                            intBytes = BitConverter.GetBytes(VioNumber); //UI에 있는 자동으로 증가되는 번호
                             Buffer.BlockCopy(intBytes, 0, data, index, Marshal.SizeOf(typeof(short)));
                         }
 
@@ -827,23 +809,18 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)hour;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)minute;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
                         //VioType은 나중에 할것이므로 기억만 만하고 있다가 나중에 처리
@@ -852,11 +829,9 @@ namespace HMCU_Sim
 
                         //근무번호
                         intValue = Convert.ToInt32(LaneNumber);
-                        //byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
                         byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                         Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         intValue = Convert.ToInt32(WorkNumber);
-                        //byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
                         byte [] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                         Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
                         index += Marshal.SizeOf(typeof(short));
@@ -865,198 +840,161 @@ namespace HMCU_Sim
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                       
 
-                        switch (cycleNum)
+                        if(pItem != null)
                         {
-                            case 1:
-                                { 
-                                    ///위반형태
-                                    data[vioTypeIndex] = (byte)vioType1.SelectedIndex;
-
-                                    /// 처리번호 (통합차로제어기 부여)
-                                    byte[] bProcNum = BitConverter.GetBytes(ProcNumber1);
-                                    
-                                    
-                                    bool find = false;
-                                    for(int k = 0; k < procList.Count; k++)
+                            switch (pItem.resNumCnt)
+                            {
+                                case 0:
                                     {
-                                        if(procList[k].sndVioReq == false)
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType1.SelectedIndex;
+
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        byte[] bProcNum = BitConverter.GetBytes(ProcNumber1);
+
+
+                                        bool find = false;
+
+                                        if (pItem.sndVioReq == false)
                                         {
-                                            procList[k].ProcNum[0] = ProcNumber1;
-                                            procList[k].ProcNumCnt++;
+                                            pItem.ProcNum[0] = ProcNumber1;
+                                            pItem.resNumCnt++;
                                             find = true;
                                             //전송연번으로 동기화 할때.
-                                            int seq = procList[k].seq;
+                                            int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
-                                            break;
                                         }
-                                    }
 
-                                    if(find == false)
-                                    {
-                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (1)");
-                                        return false;
-                                    }
-                                    
-
-                                    if (ProcNumber1 == 0xFFFFFFFF)
-                                    {
-                                        ProcNumber1 = 1;
-                                    }
-                                    else
-                                    {
-                                        ProcNumber1++;
-                                    }
-                                    Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
-                                    index += Marshal.SizeOf(typeof(UInt32));
-                                    /// 위반코드
-                                    data[index] = Convert.ToByte(VioCode1);
-                                    index += Marshal.SizeOf(typeof(Byte));
-
-                                    break;
-                                }
-                            case 2:
-                                {
-                                    ///위반형태
-                                    data[vioTypeIndex] = (byte)vioType2.SelectedIndex;
-                                    /// 처리번호 (통합차로제어기 부여)
-                                    ProcNumber2 = ProcNumber1;
-                                    byte[] bProcNum = BitConverter.GetBytes(ProcNumber2);
-
-                                    bool find = false;
-                                    for (int k = 0; k < procList.Count; k++)
-                                    {
-                                        if (procList[k].sndVioReq == false)
+                                        if (ProcNumber1 == 0xFFFFFFFF)
                                         {
-                                            procList[k].ProcNum[1] = ProcNumber2;
-                                            procList[k].ProcNumCnt++;
-                                            int seq = procList[k].seq;
+                                            ProcNumber1 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber1++;
+                                        }
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode1);
+                                        index += Marshal.SizeOf(typeof(Byte));
+
+                                        break;
+                                    }
+                                case 1:
+                                    {
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType2.SelectedIndex;
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        ProcNumber2 = ProcNumber1;
+                                        byte[] bProcNum = BitConverter.GetBytes(ProcNumber2);
+
+                                        bool find = false;
+
+                                        if (pItem.sndVioReq == false)
+                                        {
+                                            pItem.ProcNum[1] = ProcNumber2;
+                                            pItem.resNumCnt++;
+                                            int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
                                             find = true;
-                                            break;
                                         }
-                                    }
 
-                                    if (find == false)
-                                    {
-                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (2)");
-                                        return false;
-                                    }
-
-                                    if (ProcNumber2 == 0xFFFFFFFF)
-                                    {
-                                        ProcNumber2 = 1;
-                                    }
-                                    else
-                                    {
-                                        ProcNumber2++;
-                                    }
-
-                                    Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
-                                    index += Marshal.SizeOf(typeof(UInt32));
-                                    /// 위반코드
-                                    data[index] = Convert.ToByte(VioCode2);
-                                    index += Marshal.SizeOf(typeof(Byte));
-
-                                    break;
-                                }
-                            case 3:
-                                {
-                                    ///위반형태
-                                    data[vioTypeIndex] = (byte)vioType3.SelectedIndex;
-                                    /// 처리번호 (통합차로제어기 부여)
-                                    ProcNumber3 = ProcNumber2;
-                                    byte[] bProcNum = BitConverter.GetBytes(ProcNumber3);
-
-                                    bool find = false;
-                                    for (int k = 0; k < procList.Count; k++)
-                                    {
-                                        if (procList[k].sndVioReq == false)
+                                        if (ProcNumber2 == 0xFFFFFFFF)
                                         {
-                                            procList[k].ProcNum[2] = ProcNumber3;
-                                            procList[k].ProcNumCnt++;
-                                            int seq = procList[k].seq;
+                                            ProcNumber2 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber2++;
+                                        }
+
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode2);
+                                        index += Marshal.SizeOf(typeof(Byte));
+
+                                        break;
+                                    }
+                                case 2:
+                                    {
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType3.SelectedIndex;
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        ProcNumber3 = ProcNumber2;
+                                        byte[] bProcNum = BitConverter.GetBytes(ProcNumber3);
+
+                                        bool find = false;
+
+                                        if (pItem.sndVioReq == false)
+                                        {
+                                            pItem.ProcNum[2] = ProcNumber3;
+                                            pItem.resNumCnt++;
+                                            int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
                                             find = true;
-                                            break;
                                         }
-                                    }
 
-                                    if (find == false)
-                                    {
-                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (3)");
-                                        return false;
-                                    }
-
-                                    if (ProcNumber3 == 0xFFFFFFFF)
-                                    {
-                                        ProcNumber3 = 1;
-                                    }
-                                    else
-                                    {
-                                        ProcNumber3++;
-                                    }
-                                    Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
-                                    index += Marshal.SizeOf(typeof(UInt32));
-                                    /// 위반코드
-                                    data[index] = Convert.ToByte(VioCode3);
-                                    index += Marshal.SizeOf(typeof(Byte));
-
-                                    break;
-                                }
-                            case 4:
-                                {
-                                    ///위반형태
-                                    data[vioTypeIndex] = (byte)vioType4.SelectedIndex;
-                                    /// 처리번호 (통합차로제어기 부여)
-                                    ProcNumber4 = ProcNumber3;
-                                    byte[] bProcNum = BitConverter.GetBytes(ProcNumber4);
-
-                                    bool find = false;
-                                    for (int k = 0; k < procList.Count; k++)
-                                    {
-                                        if (procList[k].sndVioReq == false)
+                                        if (ProcNumber3 == 0xFFFFFFFF)
                                         {
-                                            procList[k].ProcNum[3] = ProcNumber4;
-                                            procList[k].ProcNumCnt++;
-                                            int seq = procList[k].seq;
+                                            ProcNumber3 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber3++;
+                                        }
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode3);
+                                        index += Marshal.SizeOf(typeof(Byte));
+
+                                        break;
+                                    }
+                                case 3:
+                                    {
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType4.SelectedIndex;
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        ProcNumber4 = ProcNumber3;
+                                        byte[] bProcNum = BitConverter.GetBytes(ProcNumber4);
+
+                                        bool find = false;
+ 
+                                        if (pItem.sndVioReq == false)
+                                        {
+                                            pItem.ProcNum[3] = ProcNumber4;
+                                            pItem.resNumCnt++;
+                                            int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
                                             find = true;
-                                            break;
                                         }
-                                    }
 
-                                    if (find == false)
-                                    {
-                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (4)");
-                                        return false;
-                                    }
+                                        if (ProcNumber4 == 0xFFFFFFFF)
+                                        {
+                                            ProcNumber4 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber4++;
+                                        }
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode4);
+                                        index += Marshal.SizeOf(typeof(Byte));
 
-                                    if (ProcNumber4 == 0xFFFFFFFF)
-                                    {
-                                        ProcNumber4 = 1;
+                                        break;
                                     }
-                                    else
-                                    {
-                                        ProcNumber4++;
-                                    }
-                                    Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
-                                    index += Marshal.SizeOf(typeof(UInt32));
-                                    /// 위반코드
-                                    data[index] = Convert.ToByte(VioCode4);
-                                    index += Marshal.SizeOf(typeof(Byte));
-
-                                    break;
-                                }
+                            }
                         }
     
                         /// 차량번호
@@ -1084,17 +1022,14 @@ namespace HMCU_Sim
                         byte[] intBytes;
                         if (syncMethod.SelectedIndex == 1)
                         {//영상번호(위반번호)로 싱크를 맞추면..
-                            for (int k = 0; k < procList.Count; k++)
+
+                            if (pItem.sndVioReq == false)
                             {
-                                if (procList[k].sndVioReq == false)
-                                {
-                                    intBytes = BitConverter.GetBytes(procList[k].vioNum);
-                                    Buffer.BlockCopy(intBytes, 0, data, index, Marshal.SizeOf(typeof(short)));
-                                    findList = true;
-                                    //전송연번으로 동기화 할때.
-                                    break;
-                                }
+                                intBytes = BitConverter.GetBytes(pItem.vioNum);
+                                Buffer.BlockCopy(intBytes, 0, data, index, Marshal.SizeOf(typeof(short)));
+                                findList = true;
                             }
+
                         }
                         else
                         {
@@ -1113,34 +1048,24 @@ namespace HMCU_Sim
                         ///위반일시 생성
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
-
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
-
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(hour), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)hour;
                         index += Marshal.SizeOf(typeof(Byte));
-
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(minute), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)minute;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(sec), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
 
                         ///근무번호
                         intValue = Convert.ToInt32(LaneNumber);
-                        //byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
                         byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                         Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         intValue = Convert.ToInt32(WorkNumber);
-                        //byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(intValue);
                         byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                         Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
                         index += Marshal.SizeOf(typeof(short));
@@ -1152,199 +1077,162 @@ namespace HMCU_Sim
                         ///근무일자
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
-
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)month;
                         index += Marshal.SizeOf(typeof(Byte));
 
-                        //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                         data[index] = (byte)day;
                         index += Marshal.SizeOf(typeof(Byte));
 
-
-                        switch (cycleNum)
+                        if(pItem != null)
                         {
-                            case 1:
-                                {
-                                    ///위반형태
-                                    data[vioTypeIndex] = (byte)vioType1.SelectedIndex;
-                                    /// 처리번호 (통합차로제어기 부여)
-                                    byte[] bProcNum = BitConverter.GetBytes(ProcNumber1);
-
-
-                                    bool find = false;
-                                    for (int k = 0; k < procList.Count; k++)
+                            switch (pItem.resNumCnt)
+                            {
+                                case 0:
                                     {
-                                        if (procList[k].sndVioReq == false)
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType1.SelectedIndex;
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        byte[] bProcNum = BitConverter.GetBytes(ProcNumber1);
+
+
+                                        bool find = false;
+ 
+                                        if (pItem.sndVioReq == false)
                                         {
-                                            procList[k].ProcNum[0] = ProcNumber1;
-                                            procList[k].ProcNumCnt++;
+                                            pItem.ProcNum[0] = ProcNumber1;
+                                            pItem.resNumCnt++;
                                             find = true;
                                             //전송연번으로 동기화 할때.
-                                            int seq = procList[k].seq;
+                                            int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
-                                            break;
                                         }
-                                    }
 
-                                    if (find == false)
-                                    {
-                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (1)");
-                                        return false;
-                                    }
-
-
-                                    if (ProcNumber1 == 0xFFFFFFFF)
-                                    {
-                                        ProcNumber1 = 1;
-                                    }
-                                    else
-                                    {
-                                        ProcNumber1++;
-                                    }
-                                    Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
-                                    index += Marshal.SizeOf(typeof(UInt32));
-                                    /// 위반코드
-                                    data[index] = Convert.ToByte(VioCode1);
-                                    index += Marshal.SizeOf(typeof(Byte));
-
-                                    break;
-                                }
-                            case 2:
-                                {
-                                    ///위반형태
-                                    data[vioTypeIndex] = (byte)vioType2.SelectedIndex;
-                                    /// 처리번호 (통합차로제어기 부여)
-                                    ProcNumber2 = ProcNumber1;
-                                    byte[] bProcNum = BitConverter.GetBytes(ProcNumber2);
-
-                                    bool find = false;
-                                    for (int k = 0; k < procList.Count; k++)
-                                    {
-                                        if (procList[k].sndVioReq == false)
+                                        if (ProcNumber1 == 0xFFFFFFFF)
                                         {
-                                            procList[k].ProcNum[1] = ProcNumber2;
-                                            procList[k].ProcNumCnt++;
-                                            int seq = procList[k].seq;
+                                            ProcNumber1 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber1++;
+                                        }
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode1);
+                                        index += Marshal.SizeOf(typeof(Byte));
+
+                                        break;
+                                    }
+                                case 1:
+                                    {
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType2.SelectedIndex;
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        ProcNumber2 = ProcNumber1;
+                                        byte[] bProcNum = BitConverter.GetBytes(ProcNumber2);
+
+                                        bool find = false;
+
+                                        if (pItem.sndVioReq == false)
+                                        {
+                                            pItem.ProcNum[1] = ProcNumber2;
+                                            pItem.resNumCnt++;      //보낸 갯수 증가
+                                            int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
                                             find = true;
-                                            break;
                                         }
-                                    }
 
-                                    if (find == false)
-                                    {
-                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (2)");
-                                        return false;
-                                    }
-
-                                    if (ProcNumber2 == 0xFFFFFFFF)
-                                    {
-                                        ProcNumber2 = 1;
-                                    }
-                                    else
-                                    {
-                                        ProcNumber2++;
-                                    }
-
-                                    Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
-                                    index += Marshal.SizeOf(typeof(UInt32));
-                                    /// 위반코드
-                                    data[index] = Convert.ToByte(VioCode2);
-                                    index += Marshal.SizeOf(typeof(Byte));
-
-                                    break;
-                                }
-                            case 3:
-                                {
-                                    ///위반형태
-                                    data[vioTypeIndex] = (byte)vioType3.SelectedIndex;
-                                    /// 처리번호 (통합차로제어기 부여)
-                                    ProcNumber3 = ProcNumber2;
-                                    byte[] bProcNum = BitConverter.GetBytes(ProcNumber3);
-
-                                    bool find = false;
-                                    for (int k = 0; k < procList.Count; k++)
-                                    {
-                                        if (procList[k].sndVioReq == false)
+                                        if (ProcNumber2 == 0xFFFFFFFF)
                                         {
-                                            procList[k].ProcNum[2] = ProcNumber3;
-                                            procList[k].ProcNumCnt++;
-                                            int seq = procList[k].seq;
+                                            ProcNumber2 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber2++;
+                                        }
+
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode2);
+                                        index += Marshal.SizeOf(typeof(Byte));
+
+                                        break;
+                                    }
+                                case 2:
+                                    {
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType3.SelectedIndex;
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        ProcNumber3 = ProcNumber2;
+                                        byte[] bProcNum = BitConverter.GetBytes(ProcNumber3);
+
+                                        bool find = false;
+                                       
+                                        if (pItem.sndVioReq == false)
+                                        {
+                                            pItem.ProcNum[2] = ProcNumber3;
+                                            pItem.resNumCnt++;
+                                            int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
                                             find = true;
-                                            break;
                                         }
-                                    }
 
-                                    if (find == false)
-                                    {
-                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (3)");
-                                        return false;
-                                    }
-
-                                    if (ProcNumber3 == 0xFFFFFFFF)
-                                    {
-                                        ProcNumber3 = 1;
-                                    }
-                                    else
-                                    {
-                                        ProcNumber3++;
-                                    }
-                                    Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
-                                    index += Marshal.SizeOf(typeof(UInt32));
-                                    /// 위반코드
-                                    data[index] = Convert.ToByte(VioCode3);
-                                    index += Marshal.SizeOf(typeof(Byte));
-
-                                    break;
-                                }
-                            case 4:
-                                {
-                                    ///위반형태
-                                    data[vioTypeIndex] = (byte)vioType4.SelectedIndex;
-
-                                    /// 처리번호 (통합차로제어기 부여)
-                                    ProcNumber4 = ProcNumber3;
-                                    byte[] bProcNum = BitConverter.GetBytes(ProcNumber4);
-
-                                    bool find = false;
-                                    for (int k = 0; k < procList.Count; k++)
-                                    {
-                                        if (procList[k].sndVioReq == false)
+                                        if (ProcNumber3 == 0xFFFFFFFF)
                                         {
-                                            procList[k].ProcNum[3] = ProcNumber4;
-                                            procList[k].ProcNumCnt++;
-                                            int seq = procList[k].seq;
+                                            ProcNumber3 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber3++;
+                                        }
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode3);
+                                        index += Marshal.SizeOf(typeof(Byte));
+
+                                        break;
+                                    }
+                                case 3:
+                                    {
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType4.SelectedIndex;
+
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        ProcNumber4 = ProcNumber3;
+                                        byte[] bProcNum = BitConverter.GetBytes(ProcNumber4);
+
+                                        bool find = false;
+
+                                        if (pItem.sndVioReq == false)
+                                        {
+                                            pItem.ProcNum[3] = ProcNumber4;
+                                            pItem.resNumCnt++;
+                                            int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
                                             find = true;
-                                            break;
                                         }
-                                    }
 
-                                    if (find == false)
-                                    {
-                                        MessageBox.Show("이미 위반 확인응답을 보냈습니다 (4)");
-                                        return false;
-                                    }
+                                        if (ProcNumber4 == 0xFFFFFFFF)
+                                        {
+                                            ProcNumber4 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber4++;
+                                        }
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode4);
+                                        index += Marshal.SizeOf(typeof(Byte));
 
-                                    if (ProcNumber4 == 0xFFFFFFFF)
-                                    {
-                                        ProcNumber4 = 1;
+                                        break;
                                     }
-                                    else
-                                    {
-                                        ProcNumber4++;
-                                    }
-                                    Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
-                                    index += Marshal.SizeOf(typeof(UInt32));
-                                    /// 위반코드
-                                    data[index] = Convert.ToByte(VioCode4);
-                                    index += Marshal.SizeOf(typeof(Byte));
-
-                                    break;
-                                }
+                            }
                         }
+
 
                         /// 차량번호
                         Buffer.BlockCopy(MainWindow.SetPlateNum(plateNum.Text), 0, data, index, 5);
@@ -1366,30 +1254,23 @@ namespace HMCU_Sim
                         /// procList에서 item의 갯수를 구한다.
                         /// 
 
-                        if(procList[0].curProcNumCnt < procList[0].ProcNumCnt)
+                        if(pItem.curCfmCnt < pItem.procNumTotal)
                         {
                             /// 영업소 번호
                             intValue = Convert.ToInt32(OfficeNumber);
-                            //byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(intValue);
                             byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                             Buffer.BlockCopy(boffice, 0, data, index, Marshal.SizeOf(typeof(short)));
                             index += Marshal.SizeOf(typeof(short));
                             ///근무일자
                             Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                             index += Marshal.SizeOf(typeof(short));
-
-                            // Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(month), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                             data[index] = (byte)month;
                             index += Marshal.SizeOf(typeof(Byte));
 
-                            //Buffer.BlockCopy(((MainWindow)System.Windows.Application.Current.MainWindow).ByteToBCD(day), 0, data, index, Marshal.SizeOf(typeof(Byte)));
                             data[index] = (byte)day;
                             index += Marshal.SizeOf(typeof(Byte));
 
                             ///근무번호
-                            //byte[] bWorkNum = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(Convert.ToInt32(WorkNumber));
-                            //Buffer.BlockCopy(bWorkNum, 0, data, index, Marshal.SizeOf(typeof(short)));
-                            //index += Marshal.SizeOf(typeof(short));
                             intValue = Convert.ToInt32(LaneNumber);
                             byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                             Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
@@ -1399,8 +1280,8 @@ namespace HMCU_Sim
                             index += Marshal.SizeOf(typeof(short));
 
                             /// 처리번호 (통합차로제어기 부여)
-                            byte[] bProcNum = BitConverter.GetBytes(procList[0].ProcNum[procList[0].curProcNumCnt]);
-                            procList[0].curProcNumCnt++;
+                            byte[] bProcNum = BitConverter.GetBytes(pItem.ProcNum[pItem.curCfmCnt]);
+                            pItem.curCfmCnt++;
                             Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
                             index += Marshal.SizeOf(typeof(UInt32));
 
@@ -1409,7 +1290,7 @@ namespace HMCU_Sim
                         }
                         else
                         {
-                            MessageBox.Show("영상확정을 보낼 것이 없습니다.");
+                            MessageBox.Show("영상 확정을 보낼 것이 없습니다.(1)");
                         }
 
                     }
@@ -1469,49 +1350,54 @@ namespace HMCU_Sim
             ///위반확인응답프레임 만들기.
             int maxLoop = pcComboBox.SelectedIndex + 1;
             uint saveProcNum = ProcNumber1;
-            for (cycleNum = 1; cycleNum <= maxLoop; cycleNum++)
-            {
-                ProcItem item = null;
-                if (MakeFrame(Code.VIO_CONFIRM_RES, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
-                {
-                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
-                }
-            }
 
             for (int k = 0; k < procList.Count; k++)
             {
-                if (procList[k].sndVioReq == false && procList[k].ProcNumCnt > 0)
+                for(int i = 0; i < procList[k].procNumTotal; i++)
                 {
-                    //위반확인응답을 보냄.
+                    ProcItem item = (ProcItem)procList[k];
+                    if (MakeFrame(Code.VIO_CONFIRM_RES, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
+                    {
+                        ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
+                    }
+                }
+                if(procList[k].sndVioReq == false)
+                {
                     procList[k].sndVioReq = true;
-                    break;
-                }
-            }
-            ///싱크 번호가 이미지 번호가 아니면 그냥 MCU Sim에서 번호를 증가 한다.
-            if(syncMethod.SelectedIndex != 1)
-            {
-                ///위반번호 증가
-                VioNumber = VioNumber + 1;
-                if (VioNumber == 0xFFFF)
-                {
-                    VioNumber = 1;
-                }
-            }
 
-            ProcNumber1 = saveProcNum;
-            ProcNumber1 += (uint)maxLoop;
-            ProcNumber2 = ProcNumber1 + 1;
-            ProcNumber3 = ProcNumber2 + 1;
-            ProcNumber4 = ProcNumber3 + 1;
+                    ///싱크 번호가 이미지 번호가 아니면 그냥 MCU Sim에서 번호를 증가 한다.
+                    if (syncMethod.SelectedIndex != 1)
+                    {
+                        ///위반번호 증가
+                        VioNumber = VioNumber + 1;
+                        if (VioNumber == 0xFFFF)
+                        {
+                            VioNumber = 1;
+                        }
+                    }
 
-            for(int k= 0; k < procList.Count; k++)
+                    ProcNumber1 = saveProcNum;
+                    ProcNumber1 += (uint)maxLoop;
+                    ProcNumber2 = ProcNumber1 + 1;
+                    ProcNumber3 = ProcNumber2 + 1;
+                    ProcNumber4 = ProcNumber3 + 1;
+
+                    saveProcNum = ProcNumber1;
+                }
+               
+            }
+            if(cftComboBox.SelectedIndex == 0)
             {
-                if(procList[k].sndVioReq == true && cftComboBox.SelectedIndex == 0)
+                for (int k = 0; k < procList.Count; k++)
                 {
-                    //위반확인에서 영상확정이고, 위반확인을 보내면 item 삭제
-                    procList.RemoveAt(k);
+                    if (procList[k].sndVioReq == true)
+                    {
+                        //위반확인에서 영상확정이고, 위반확인을 보내면 item 삭제
+                        procList.RemoveAt(k);
+                    }
                 }
             }
+            
         }
 
         private void SendVioConfirmResponseNew_Click(object sender, RoutedEventArgs e)
@@ -1519,50 +1405,52 @@ namespace HMCU_Sim
             ///위반확인응답프레임-New 만들기.
             int maxLoop = pcComboBox.SelectedIndex + 1;
             uint saveProcNum = ProcNumber1;
-            for (cycleNum = 1; cycleNum <= maxLoop; cycleNum++)
-            {
-                ProcItem item = null;
-
-                if (MakeFrame(Code.VIO_CONFIRM_RES_N, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
-                {
-                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
-                }
-            }
-
             for (int k = 0; k < procList.Count; k++)
             {
-                if (procList[k].sndVioReq == false && procList[k].ProcNumCnt > 0)
+                for (int i = 0; i < procList[k].procNumTotal; i++)
                 {
-                    //위반확인응답을 보냄.
+                    ProcItem item = (ProcItem)procList[k];
+                    if (MakeFrame(Code.VIO_CONFIRM_RES_N, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
+                    {
+                        ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
+                    }
+                }
+                if (procList[k].sndVioReq == false)
+                {
                     procList[k].sndVioReq = true;
-                    break;
+
+                    ///싱크 번호가 이미지 번호가 아니면 그냥 MCU Sim에서 번호를 증가 한다.
+                    if (syncMethod.SelectedIndex != 1)
+                    {
+                        ///위반번호 증가
+                        VioNumber = VioNumber + 1;
+                        if (VioNumber == 0xFFFF)
+                        {
+                            VioNumber = 1;
+                        }
+                    }
+
+                    ProcNumber1 = saveProcNum;
+                    ProcNumber1 += (uint)maxLoop;
+                    ProcNumber2 = ProcNumber1 + 1;
+                    ProcNumber3 = ProcNumber2 + 1;
+                    ProcNumber4 = ProcNumber3 + 1;
+                    saveProcNum = ProcNumber1;
                 }
+
             }
-            ///싱크 번호가 이미지 번호가 아니면 그냥 MCU Sim에서 번호를 증가 한다.
-            if (syncMethod.SelectedIndex != 1)
+            if (cftComboBox.SelectedIndex == 0)
             {
-                ///위반번호 증가
-                VioNumber = VioNumber + 1;
-                if (VioNumber == 0xFFFF)
+                for (int k = 0; k < procList.Count; k++)
                 {
-                    VioNumber = 1;
+                    if (procList[k].sndVioReq == true)
+                    {
+                        //위반확인에서 영상확정이고, 위반확인을 보내면 item 삭제
+                        procList.RemoveAt(k);
+                    }
                 }
             }
 
-            ProcNumber1 = saveProcNum;
-            ProcNumber1 += (uint)maxLoop;
-            ProcNumber2 = ProcNumber1 + 1;
-            ProcNumber3 = ProcNumber2 + 1;
-            ProcNumber4 = ProcNumber3 + 1;
-
-            for (int k = 0; k < procList.Count; k++)
-            {
-                if (procList[k].sndVioReq == true && cftComboBox.SelectedIndex == 0)
-                {
-                    //위반확인에서 영상확정이고, 위반확인을 보내면 item 삭제
-                    procList.RemoveAt(k);
-                }
-            }
         }
         /// <summary>
         /// 근무개시
@@ -1599,7 +1487,6 @@ namespace HMCU_Sim
 
             MakeFrame(Code.VIO_NUMBER_SYNC, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
             ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
-            //((MainWindow)System.Windows.Application.Current.MainWindow).commHandler.Send(data, data.Length);
         }
         /// <summary>
         /// 영상확정 처리기
@@ -1616,15 +1503,14 @@ namespace HMCU_Sim
                     if(procList[i].sndVioReq == true)
                     {
                        
-                        for(int j = 0; j < procList[i].ProcNumCnt;  j++)
+                        for(int j = 0; j < procList[i].procNumTotal;  j++)
                         {
-                            ProcItem item = procList[i];
+                            ProcItem item = (ProcItem)procList[i];
                             MakeFrame(Code.IMAGE_CONFIRM, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
                             ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
-                            procList[i].sndImgCfm++;
 
                         }
-                        if(procList[i].ProcNumCnt == procList[i].sndImgCfm)
+                        if(procList[i].procNumTotal == procList[i].curCfmCnt)
                         {
                             procList.RemoveAt(i);  //영상확정을 보내면 삭제한다.
                         }
@@ -1634,7 +1520,7 @@ namespace HMCU_Sim
             }
             else
             {
-                MessageBox.Show("영상 확정을 보낼 것이 없습니다");
+                MessageBox.Show("영상 확정을 보낼 것이 없습니다 (2)");
             }
            
         }

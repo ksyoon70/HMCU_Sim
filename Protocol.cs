@@ -72,7 +72,14 @@ namespace HMCU_Sim
                 return extraLen;
             }
         }
-
+        private byte minFrameLen = 8;
+        public virtual byte MinFrameLen
+        {
+            get
+            {
+                return minFrameLen;
+            }
+        }
         private byte sDLEPos = 0;    // Start DLE 위치
         public virtual byte SDLEPos
         {

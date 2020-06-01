@@ -356,9 +356,11 @@ namespace HMCU_Sim
 
                             string str = string.Empty;
                             int cnt = 0;
+                            StringBuilder sb = new StringBuilder();
+
                             foreach (byte b in state.buffer)
                             {
-                                str += string.Format("[" + "{0:x2}" + "]", b);
+                                sb.Append(string.Format("[" + "{0:x2}" + "]", b));
                                 cnt++;
                                 if (cnt == bytesRead)
                                     break;
@@ -409,7 +411,7 @@ namespace HMCU_Sim
                                                 recvTab.triggerStatus.Text = "비정상";
                                             }
 
-                                            ProcItem pItem = new ProcItem();
+                                            ProcItem pItem = new ProcItem((uint)sndTab.pcComboBox.SelectedIndex + 1);
                                             pItem.seq = state.buffer[Frame.Seq];
                                             pItem.vioNum = pVioReq.imagNum;
                                             sndTab.procList.Add(pItem);
@@ -436,7 +438,7 @@ namespace HMCU_Sim
 
                                                 for (int k = 0; k < sndTab.procList.Count; k++)
                                                 {
-                                                    if (sndTab.procList[k].sndVioReq == false && sndTab.procList[k].ProcNumCnt > 0)
+                                                    if (sndTab.procList[k].sndVioReq == false && sndTab.procList[k].resNumCnt > 0)
                                                     {
                                                         //위반확인응답을 보냄.
                                                         sndTab.procList[k].sndVioReq = true;
@@ -488,9 +490,11 @@ namespace HMCU_Sim
                                             ushort vioNum = BitConverter.ToUInt16(bVioNum, 0);  //영상번호 
 
                                             //영상확장자동전송 체크 시 전송을 수행함.
+                                            //영상확장자동전송 체크 시 전송을 수행함.
                                             if (othTab.autoConfirmSendCheck.IsChecked == true)
                                             {
                                                 int procNum = sndTab.procList.Count;
+                                                bool findOk = false;
                                                 if (sndTab.procList.Count > 0)
                                                 {
                                                     for (int i = 0; i < sndTab.procList.Count; i++)
@@ -499,30 +503,57 @@ namespace HMCU_Sim
                                                         {
                                                             if (vioNum == sndTab.procList[i].vioNum)
                                                             {
-                                                                for (int j = 0; j < sndTab.procList[i].ProcNumCnt; j++)
+                                                                uint j = sndTab.procList[i].curCfmCnt;
+                                                                for (; j < sndTab.procList[i].procNumTotal; j++)
                                                                 {
-                                                                    if (vioNum == sndTab.procList[i].vioNum)
-                                                                    {
-                                                                        ProcItem item = null; 
-                                                                        sndTab.MakeFrame(Code.IMAGE_CONFIRM, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
-                                                                        ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
-                                                                        sndTab.procList[i].sndImgCfm++;
-                                                                    }
+                                                                    ProcItem pItem = (ProcItem)sndTab.procList[i];
+                                                                    sndTab.MakeFrame(Code.IMAGE_CONFIRM, out byte[] auto_data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref pItem);
+                                                                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(auto_data, auto_data.Length);
+                                                                    findOk = true;
+                                                                }
+                                                                if (sndTab.procList[i].procNumTotal == sndTab.procList[i].curCfmCnt)
+                                                                {
+                                                                    sndTab.procList.RemoveAt(i);  //영상확정을 보내면 삭제한다.
+                                                                }
 
-                                                                }
-                                                                if (sndTab.procList[i].sndImgCfm == sndTab.procList[i].ProcNumCnt)
-                                                                {
-                                                                    sndTab.procList.RemoveAt(i);
-                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    if (findOk == false)
+                                                    {
+                                                        sb.Append("영상확정 오류 !해당 영상번호가 없음");
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    MessageBox.Show("영상 확정을 보낼 것이 없습니다 (5)");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                ///차량번호 통보를 받았으면 리스트에 있는 것을 삭제한다.
+                                                if (sndTab.procList.Count > 0)
+                                                {
+                                                    for (int i = 0; i < sndTab.procList.Count; i++)
+                                                    {
+                                                        if (sndTab.procList[i].sndVioReq == true)
+                                                        {
+                                                            if (vioNum == sndTab.procList[i].vioNum)
+                                                            {
+
+                                                                //처리번호의 갯수와 전송 갯수가 같으면... 삭제
+                                                                sndTab.procList.RemoveAt(i);
+
                                                                 break;
                                                             }
                                                         }
                                                     }
+
                                                 }
-                                                //else
-                                                //{
-                                                //    MessageBox.Show("영상 확정을 보낼 것이 없습니다");
-                                                //}
+                                                else
+                                                {
+                                                    MessageBox.Show("영상 확정을 보낼 것이 없습니다 (6)");
+                                                }
                                             }
                                         }
                                         break;

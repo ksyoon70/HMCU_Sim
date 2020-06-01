@@ -178,6 +178,10 @@ namespace HMCU_Sim
 
         public RecvBufferStruct recvBuff;
         public RecvBufferStruct dataBuf;
+        /// <summary>
+        /// 프레임 처리를 위한 메모리
+        /// </summary>
+        public RecvBufferStruct frameBuf;
         public int lastLen;
 
         public MainWindow()
@@ -226,6 +230,8 @@ namespace HMCU_Sim
             recvBuff = new RecvBufferStruct();
 
             dataBuf = new RecvBufferStruct();
+
+            frameBuf = new RecvBufferStruct();
 
         }
         protected void OnPropertyChanged(string propertyName)
