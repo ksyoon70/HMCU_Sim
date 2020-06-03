@@ -1538,5 +1538,15 @@ namespace HMCU_Sim
             MakeFrame(Code.ACK, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
             ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
         }
+
+        private void cftComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //영상확정 변경 때...
+
+            if(cftComboBox.SelectedIndex == 0)
+            {
+                ((MainWindow)System.Windows.Application.Current.MainWindow).othTabUsrCtrl.autoConfirmSendCheck.IsChecked = false;
+            }
+        }
     }
 }

@@ -491,8 +491,9 @@ namespace HMCU_Sim
 
                                             //영상확장자동전송 체크 시 전송을 수행함.
                                             //영상확장자동전송 체크 시 전송을 수행함.
-                                            if (othTab.autoConfirmSendCheck.IsChecked == true)
+                                            if (othTab.autoConfirmSendCheck.IsChecked == true && sndTab.cftComboBox.SelectedIndex == 1)
                                             {
+                                                //자동전송이 있고, 종료가 영상확인 일때.
                                                 int procNum = sndTab.procList.Count;
                                                 bool findOk = false;
                                                 if (sndTab.procList.Count > 0)
@@ -510,6 +511,7 @@ namespace HMCU_Sim
                                                                     sndTab.MakeFrame(Code.IMAGE_CONFIRM, out byte[] auto_data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref pItem);
                                                                     ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(auto_data, auto_data.Length);
                                                                     findOk = true;
+                                                                    break;
                                                                 }
                                                                 if (sndTab.procList[i].procNumTotal == sndTab.procList[i].curCfmCnt)
                                                                 {
@@ -531,24 +533,27 @@ namespace HMCU_Sim
                                             }
                                             else
                                             {
-                                                ///차량번호 통보를 받았으면 리스트에 있는 것을 삭제한다.
-                                                if (sndTab.procList.Count > 0)
+                                                if(sndTab.cftComboBox.SelectedIndex == 0)
                                                 {
-                                                    for (int i = 0; i < sndTab.procList.Count; i++)
+                                                    ///차량번호 통보를 받았으면 리스트에 있는 것을 삭제한다.
+                                                    if (sndTab.procList.Count > 0)
                                                     {
-                                                        if (sndTab.procList[i].sndVioReq == true)
+                                                        for (int i = 0; i < sndTab.procList.Count; i++)
                                                         {
-                                                            if (vioNum == sndTab.procList[i].vioNum)
+                                                            if (sndTab.procList[i].sndVioReq == true)
                                                             {
+                                                                if (vioNum == sndTab.procList[i].vioNum)
+                                                                {
 
-                                                                //처리번호의 갯수와 전송 갯수가 같으면... 삭제
-                                                                sndTab.procList.RemoveAt(i);
+                                                                    //처리번호의 갯수와 전송 갯수가 같으면... 삭제
+                                                                    sndTab.procList.RemoveAt(i);
 
-                                                                break;
+                                                                    break;
+                                                                }
                                                             }
                                                         }
-                                                    }
 
+                                                    }
                                                 }
                                                 else
                                                 {
