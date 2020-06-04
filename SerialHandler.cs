@@ -432,6 +432,10 @@ namespace HMCU_Sim
 
                                         }
                                     }
+                                    else if(sndTab.cftComboBox.SelectedIndex == 1)
+                                    {
+
+                                    }
                                     else
                                     {
                                         MessageBox.Show("영상 확정을 보낼 것이 없습니다 (4)");
