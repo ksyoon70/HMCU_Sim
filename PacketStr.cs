@@ -159,6 +159,6 @@ namespace HMCU_Sim
     unsafe struct PACKET_VIO_REQUEST
     {       
         public Byte imgStatus;           //트리거 상태
-        public Int16 imagNum;            //영상번호
+        public UInt16 imagNum;            //영상번호
     }
 }

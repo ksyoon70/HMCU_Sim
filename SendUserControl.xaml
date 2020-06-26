@@ -45,7 +45,7 @@
                 <TextBlock Text="위반일시"/>
                 <TextBox x:Name="procTime" Width="100" Margin="10,0,0,0">...</TextBox>
                 <TextBlock Margin="5,5,0,0" Text="영상확정시점:"/>
-                <ComboBox x:Name="cftComboBox" Margin="5,0,0,0" Width="100" ></ComboBox>
+                <ComboBox x:Name="cftComboBox" Margin="5,0,0,0" Width="100" SelectionChanged="cftComboBox_SelectionChanged"></ComboBox>
             </WrapPanel>
 
             <WrapPanel Margin="5,5,0,0">
