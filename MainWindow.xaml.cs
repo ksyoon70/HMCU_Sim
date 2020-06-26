@@ -310,26 +310,10 @@ namespace HMCU_Sim
         static public byte[] SetPlateNum(string plateNum)
         {
             byte[] bcdPlate = new byte[5];
-            string region;
-            string region1;
+            string region = plateNum.Substring(0, 2);
+            string region1 = plateNum.Substring(0, 1);
             int index = 0;
             int b_index = 0;
-            int checkThree = 0;
-
-            if(string.IsNullOrEmpty(plateNum) || plateNum.Length < 7 || plateNum.Length > 10)
-            {
-                for(int i = 0; i < bcdPlate.Length; i++)
-                {
-                    bcdPlate[i] = 0xFF;
-                }
-                return bcdPlate;
-            }
-            else
-            {
-                region = plateNum.Substring(0, 2);
-                region1 = plateNum.Substring(0, 1);
-            }
-
             switch (region)
             {
                 case "서울":
@@ -401,61 +385,53 @@ namespace HMCU_Sim
                     index += 2;
                     break;
                 default:
-                    bool isnum = int.TryParse(plateNum.Substring(0, 3), out checkThree);
-                    if(isnum == true)
+                    switch(region1)
                     {
-                        switch (region1)
-                        {
-                            case "0":
-                                bcdPlate[0] = 0x80;
-                                index += 1;
-                                break;
-                            case "1":
-                                bcdPlate[0] = 0x81;
-                                index += 1;
-                                break;
-                            case "2":
-                                bcdPlate[0] = 0x82;
-                                index += 1;
-                                break;
-                            case "3":
-                                bcdPlate[0] = 0x83;
-                                index += 1;
-                                break;
-                            case "4":
-                                bcdPlate[0] = 0x84;
-                                index += 1;
-                                break;
-                            case "5":
-                                bcdPlate[0] = 0x85;
-                                index += 1;
-                                break;
-                            case "6":
-                                bcdPlate[0] = 0x86;
-                                index += 1;
-                                break;
-                            case "7":
-                                bcdPlate[0] = 0x87;
-                                index += 1;
-                                break;
-                            case "8":
-                                bcdPlate[0] = 0x88;
-                                index += 1;
-                                break;
-                            case "9":
-                                bcdPlate[0] = 0x89;
-                                index += 1;
-                                break;
-                            default:
-                                bcdPlate[0] = 0x99;
-                                break;
-                        }
+                        case "0":
+                            bcdPlate[0] = 0x80;
+                            index += 1;
+                            break;
+                        case "1":
+                            bcdPlate[0] = 0x81;
+                            index += 1;
+                            break;
+                        case "2":
+                            bcdPlate[0] = 0x82;
+                            index += 1;
+                            break;
+                        case "3":
+                            bcdPlate[0] = 0x83;
+                            index += 1;
+                            break;
+                        case "4":
+                            bcdPlate[0] = 0x84;
+                            index += 1;
+                            break;
+                        case "5":
+                            bcdPlate[0] = 0x85;
+                            index += 1;
+                            break;
+                        case "6":
+                            bcdPlate[0] = 0x86;
+                            index += 1;
+                            break;
+                        case "7":
+                            bcdPlate[0] = 0x87;
+                            index += 1;
+                            break;
+                        case "8":
+                            bcdPlate[0] = 0x88;
+                            index += 1;
+                            break;
+                        case "9":
+                            bcdPlate[0] = 0x89;
+                            index += 1;
+                            break;
+                        default:
+                            bcdPlate[0] = 0x99;
+                            index += 2;
+                            break;
                     }
-                    else
-                    {
-                        bcdPlate[0] = 0x99;
-                    }
-
                     break;
             }
             b_index += 1;
