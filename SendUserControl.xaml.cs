@@ -782,7 +782,7 @@ namespace HMCU_Sim
 
                         int vioTypeIndex;
 
-                        // 위반확인요청이 없으면 종료한다.
+                        //위반확인요청이 없으면 종료한다.
                         if (procList.Count == 0)
                         {
                             MessageBox.Show("수신된 위반확인 요구가 없습니다.");
@@ -813,12 +813,12 @@ namespace HMCU_Sim
                             Buffer.BlockCopy(intBytes, 0, data, index, Marshal.SizeOf(typeof(short)));
                         }
 
-                        if(syncMethod.SelectedIndex == 1 && findList == false)
+                        if (syncMethod.SelectedIndex == 1 && findList == false)
                         {
                             MessageBox.Show("이미 위반 확인응답을 보냈습니다 (1)");
                             return false;
                         }
-                        
+
                         index += Marshal.SizeOf(typeof(short));                       
 
 
@@ -900,12 +900,12 @@ namespace HMCU_Sim
                                         }
                                     }
 
-                                    if(find == false)
+                                    if (find == false)
                                     {
                                         MessageBox.Show("이미 위반 확인응답을 보냈습니다 (1)");
                                         return false;
                                     }
-                                    
+
 
                                     if (ProcNumber1 == 0xFFFFFFFF)
                                     {
