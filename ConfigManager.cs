@@ -126,6 +126,11 @@ namespace HMCU_Sim
             count = Convert.ToInt32(temp.ToString());
             m_form.othTabUsrCtrl.cnfComboBox.SelectedIndex = count;
 
+            //위반확인응답 종류
+            GetPrivateProfileString("SYSTEM", "CONF_RES_TYPE", "0", temp, 255, PROGRAM_INI_FULLPATH);
+            count = Convert.ToInt32(temp.ToString());
+            m_form.othTabUsrCtrl.cnfResTypeComboBox.SelectedIndex = count;
+
             //영상확정시점
             GetPrivateProfileString("SYSTEM", "CONF_TIME", "0", temp, 255, PROGRAM_INI_FULLPATH);
             count = Convert.ToInt32(temp.ToString());
@@ -204,7 +209,8 @@ namespace HMCU_Sim
             WritePrivateProfileString("SYSTEM", "VIO_CODE4", m_form.sndTabUsrCtrl.VioCode4, PROGRAM_INI_FULLPATH);
             // 확정 위치
             WritePrivateProfileString("SYSTEM", "CONF_LOC", m_form.othTabUsrCtrl.cnfComboBox.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
-
+            //위반확인응답 타입
+            WritePrivateProfileString("SYSTEM", "CONF_RES_TYPE", m_form.othTabUsrCtrl.cnfResTypeComboBox.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
             //영상확정시점
             WritePrivateProfileString("SYSTEM", "CONF_TIME", m_form.sndTabUsrCtrl.cftComboBox.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
 

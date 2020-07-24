@@ -823,6 +823,7 @@ namespace HMCU_Sim
 
                         data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
+                        
                         //VioType은 나중에 할것이므로 기억만 만하고 있다가 나중에 처리
                         vioTypeIndex = index;
                         index += Marshal.SizeOf(typeof(Byte));
@@ -1061,6 +1062,10 @@ namespace HMCU_Sim
                         data[index] = (byte)sec;
                         index += Marshal.SizeOf(typeof(Byte));
 
+                        //VioType은 나중에 할것이므로 기억만 만하고 있다가 나중에 처리
+                        vioTypeIndex = index;
+                        index += Marshal.SizeOf(typeof(Byte));
+
                         ///근무번호
                         intValue = Convert.ToInt32(LaneNumber);
                         byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
@@ -1069,10 +1074,6 @@ namespace HMCU_Sim
                         byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
                         Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
                         index += Marshal.SizeOf(typeof(short));
-
-                        //VioType은 나중에 할것이므로 기억만 만하고 있다가 나중에 처리
-                        vioTypeIndex = index;
-                        index += Marshal.SizeOf(typeof(Byte));
 
                         ///근무일자
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));

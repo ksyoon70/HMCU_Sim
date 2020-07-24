@@ -318,11 +318,22 @@ namespace HMCU_Sim
                                     uint saveProcNum = sndTab.ProcNumber1;
                                     for (sndTab.cycleNum = 1; sndTab.cycleNum <= maxLoop; sndTab.cycleNum++)
                                     {
-
-                                        if (sndTab.MakeFrame(Code.VIO_CONFIRM_RES, out byte[] auto_data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref pItem) == true)
+                                        if (othTab.cnfResTypeComboBox.SelectedIndex == 0)
                                         {
-                                            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(auto_data, auto_data.Length);
+                                            if (sndTab.MakeFrame(Code.VIO_CONFIRM_RES, out byte[] auto_data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref pItem) == true)
+                                            {
+                                                ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(auto_data, auto_data.Length);
+                                            }
                                         }
+                                        else
+                                        {
+                                            //신규응답으로 보낸다.
+                                            if (sndTab.MakeFrame(Code.VIO_CONFIRM_RES_N, out byte[] auto_data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref pItem) == true)
+                                            {
+                                                ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(auto_data, auto_data.Length);
+                                            }
+                                        }
+                                            
                                     }
 
                                     if (pItem.sndVioReq == false)

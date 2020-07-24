@@ -21,6 +21,7 @@ namespace HMCU_Sim
     public partial class OtherUserControl : UserControl
     {
         private string[] confLocation = new string[] { "전면", "후면" };
+        private string[] confResType = new string[] { "위반확인응답", "위반확인응답신규" };
 
         public OtherUserControl()
         {
@@ -30,6 +31,11 @@ namespace HMCU_Sim
             foreach (string loc in confLocation)
             {
                 cnfComboBox.Items.Add(loc);
+            }
+            //위반확인응답 종류
+            foreach(string type in confResType)
+            {
+                cnfResTypeComboBox.Items.Add(type);
             }
         }
     }
