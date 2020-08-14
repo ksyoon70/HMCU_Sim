@@ -297,6 +297,7 @@ namespace HMCU_Sim
             }
             catch (SocketException ex)
             {
+                throw ex;
                 //Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), Form.SocketRxList, ex.Message);
             }
 
@@ -354,7 +355,7 @@ namespace HMCU_Sim
                             // Check for end-of-file tag. If it is not there, read   
                             // more data.  
 
-                            string str = string.Empty;
+                            //string str = string.Empty;
                             int cnt = 0;
                             StringBuilder sb = new StringBuilder();
 
@@ -485,9 +486,6 @@ namespace HMCU_Sim
                                                     }
                                                 }
                                             }
-                                            //sndTab.MakeEtherFrame(Code.VIO_CONFIRM_RES, out byte[] data);
-                                            //Send(handler, data);
-
                                         }
                                         break;
                                     case Code.PLATE_RECOG_NOTIFY:
@@ -586,7 +584,7 @@ namespace HMCU_Sim
 
                             try
                             {
-                                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, str);
+                                Form.Dispatcher.Invoke(new UpdateTextDelegate(Form.DisplayText), recvTab.CommRxList, sb.ToString());
                             }
                             catch (Exception ex)
                             {
@@ -646,7 +644,6 @@ namespace HMCU_Sim
             }
             catch (Exception e)
             {
-
                 if (Form.runServer == false)
                 {
                     //사람이 서버를 종료한 경우에 한하여 버튼을 바꾼다.
@@ -855,17 +852,36 @@ namespace HMCU_Sim
             return bcd;
         }
         /// <summary>
-        /// int형 data를 little endian byte array로 바꾸는 함수.
+        /// int형 data를 (little) or (Big) endian byte array로 바꾸는 함수.
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public byte[] INT2LE(int data)
+        public byte[] INT2ENDIAN(int data, int Len)
         {
-            byte[] b = new byte[4];
-            b[0] = (byte)data;
-            b[1] = (byte)(((uint)data >> 8) & 0xFF);
-            b[2] = (byte)(((uint)data >> 16) & 0xFF);
-            b[3] = (byte)(((uint)data >> 24) & 0xFF);
+            int setByteOrder = sndTabUsrCtrl.ByteOrder.SelectedIndex;
+            byte[] b = new byte[Len];
+
+            switch(Len)
+            {
+                case 2:
+                    b = BitConverter.GetBytes((short)data);
+                    break;
+                case 4:
+                    b = BitConverter.GetBytes(data);
+                    break;
+                case 8:
+                    b = BitConverter.GetBytes((long)data);
+                    break;
+                default:
+                    b = BitConverter.GetBytes(data);
+                    break;
+            }                
+
+            if (setByteOrder == 1)     // Big endian
+            {
+                b = b.Reverse().ToArray();
+            }
+
             return b;
         }
 

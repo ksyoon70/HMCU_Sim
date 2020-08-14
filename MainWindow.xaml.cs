@@ -266,6 +266,7 @@ namespace HMCU_Sim
             }
             catch (NullReferenceException ne)
             {
+                throw ne;
             }
             catch (Exception)
             {
@@ -517,7 +518,6 @@ namespace HMCU_Sim
         }
         static public string GetPlateNum(byte[] bcd)
         {
-            bool isYong = false;  //영자 존재 여부
             StringBuilder sb = new StringBuilder();
             switch(bcd[0])
             {

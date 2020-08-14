@@ -136,6 +136,11 @@ namespace HMCU_Sim
             count = Convert.ToInt32(temp.ToString());
             m_form.sndTabUsrCtrl.cftComboBox.SelectedIndex = count;
 
+            //바이트 오더
+            GetPrivateProfileString("SYSTEM", "BYTE_ORDER", "0", temp, 255, PROGRAM_INI_FULLPATH);
+            count = Convert.ToInt32(temp.ToString());
+            m_form.sndTabUsrCtrl.ByteOrder.SelectedIndex = count;
+
             // 싱크 방식
             GetPrivateProfileString("SYSTEM", "SYNC_METHOD", "0", temp, 255, PROGRAM_INI_FULLPATH);
             count = Convert.ToInt32(temp.ToString());
@@ -213,6 +218,8 @@ namespace HMCU_Sim
             WritePrivateProfileString("SYSTEM", "CONF_RES_TYPE", m_form.othTabUsrCtrl.cnfResTypeComboBox.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
             //영상확정시점
             WritePrivateProfileString("SYSTEM", "CONF_TIME", m_form.sndTabUsrCtrl.cftComboBox.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
+            //바이트 오더
+            WritePrivateProfileString("SYSTEM", "BYTE_ORDER", m_form.sndTabUsrCtrl.ByteOrder.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
 
             // 싱크 방식
             WritePrivateProfileString("SYSTEM", "SYNC_METHOD", m_form.sndTabUsrCtrl.syncMethod.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);

@@ -34,6 +34,7 @@ namespace HMCU_Sim
         private string[] confLocation = new string[] { "전면", "후면" };
         private string[] syncMethods = new string[] { "전송연번", "위반번호" };
         private string[] confTime = new string[] { "위반응답", "영상확정" };
+        private string[] endian = new string[] { "little Endian" , "Big Endian" };
 
         public int cycleNum; // 처리갯수
 
@@ -66,7 +67,7 @@ namespace HMCU_Sim
             get { return _workTypes; }
             set { _workTypes = value; }
         }
-
+        
         private WorkType _workType;
 
         public WorkType Worktype  //개별 아이템을 반환
@@ -392,6 +393,12 @@ namespace HMCU_Sim
                 vioType4.Items.Add(vt);
             }
 
+            ///바이트오더
+            foreach (string ed in endian)
+            {
+                ByteOrder.Items.Add(ed);
+            }
+
            //동기방식
            foreach(string synm in syncMethods)
             {
@@ -537,7 +544,7 @@ namespace HMCU_Sim
             }
 
             //byte[] bYear = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(year);
-            byte[] bYear = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(year);
+            byte[] bYear = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN(year, 2);
 
             switch (code)
             {
@@ -768,11 +775,11 @@ namespace HMCU_Sim
                         int vioTypeIndex;
 
                         // 위반확인요청이 없으면 종료한다.
-                        if (procList.Count == 0)
-                        {
-                            MessageBox.Show("수신 item 0입니다. 수신된 위반확인 요구가 없습니다.");
-                            return false;
-                        }
+                        //if (procList.Count == 0)
+                        //{
+                        //    MessageBox.Show("수신 item 0입니다. 수신된 위반확인 요구가 없습니다.");
+                        //    return false;
+                        //}
 
                         /// 위반번호
                         ///
@@ -829,14 +836,12 @@ namespace HMCU_Sim
                         index += Marshal.SizeOf(typeof(Byte));
 
                         //근무번호
-                        intValue = Convert.ToInt32(LaneNumber);
-                        byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
-                        Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
-                        intValue = Convert.ToInt32(WorkNumber);
-                        byte [] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
-                        Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
-                        index += Marshal.SizeOf(typeof(short));
+                        data[index] = Convert.ToByte(LaneNumber);
+                        index += Marshal.SizeOf(typeof(Byte));
 
+                        data[index] = Convert.ToByte(WorkNumber);
+                        index += Marshal.SizeOf(typeof(Byte));
+                        
                         ///근무일자
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
@@ -861,13 +866,13 @@ namespace HMCU_Sim
                                         byte[] bProcNum = BitConverter.GetBytes(ProcNumber1);
 
 
-                                        bool find = false;
+                                        //bool find = false;
 
                                         if (pItem.sndVioReq == false)
                                         {
                                             pItem.ProcNum[0] = ProcNumber1;
                                             pItem.resNumCnt++;
-                                            find = true;
+                                            //find = true;
                                             //전송연번으로 동기화 할때.
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
@@ -897,7 +902,7 @@ namespace HMCU_Sim
                                         ProcNumber2 = ProcNumber1;
                                         byte[] bProcNum = BitConverter.GetBytes(ProcNumber2);
 
-                                        bool find = false;
+                                        //bool find = false;
 
                                         if (pItem.sndVioReq == false)
                                         {
@@ -905,7 +910,7 @@ namespace HMCU_Sim
                                             pItem.resNumCnt++;
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
-                                            find = true;
+                                            //find = true;
                                         }
 
                                         if (ProcNumber2 == 0xFFFFFFFF)
@@ -933,7 +938,7 @@ namespace HMCU_Sim
                                         ProcNumber3 = ProcNumber2;
                                         byte[] bProcNum = BitConverter.GetBytes(ProcNumber3);
 
-                                        bool find = false;
+                                        //bool find = false;
 
                                         if (pItem.sndVioReq == false)
                                         {
@@ -941,7 +946,7 @@ namespace HMCU_Sim
                                             pItem.resNumCnt++;
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
-                                            find = true;
+                                            //find = true;
                                         }
 
                                         if (ProcNumber3 == 0xFFFFFFFF)
@@ -968,7 +973,7 @@ namespace HMCU_Sim
                                         ProcNumber4 = ProcNumber3;
                                         byte[] bProcNum = BitConverter.GetBytes(ProcNumber4);
 
-                                        bool find = false;
+                                        //bool find = false;
  
                                         if (pItem.sndVioReq == false)
                                         {
@@ -976,7 +981,7 @@ namespace HMCU_Sim
                                             pItem.resNumCnt++;
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
-                                            find = true;
+                                            //find = true;
                                         }
 
                                         if (ProcNumber4 == 0xFFFFFFFF)
@@ -1067,13 +1072,11 @@ namespace HMCU_Sim
                         index += Marshal.SizeOf(typeof(Byte));
 
                         ///근무번호
-                        intValue = Convert.ToInt32(LaneNumber);
-                        byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
-                        Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
-                        intValue = Convert.ToInt32(WorkNumber);
-                        byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
-                        Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
-                        index += Marshal.SizeOf(typeof(short));
+                        data[index] = Convert.ToByte(LaneNumber);
+                        index += Marshal.SizeOf(typeof(Byte));
+
+                        data[index] = Convert.ToByte(WorkNumber);
+                        index += Marshal.SizeOf(typeof(Byte));
 
                         ///근무일자
                         Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
@@ -1096,13 +1099,13 @@ namespace HMCU_Sim
                                         byte[] bProcNum = BitConverter.GetBytes(ProcNumber1);
 
 
-                                        bool find = false;
+                                        //bool find = false;
  
                                         if (pItem.sndVioReq == false)
                                         {
                                             pItem.ProcNum[0] = ProcNumber1;
                                             pItem.resNumCnt++;
-                                            find = true;
+                                            //find = true;
                                             //전송연번으로 동기화 할때.
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
@@ -1132,7 +1135,7 @@ namespace HMCU_Sim
                                         ProcNumber2 = ProcNumber1;
                                         byte[] bProcNum = BitConverter.GetBytes(ProcNumber2);
 
-                                        bool find = false;
+                                        //bool find = false;
 
                                         if (pItem.sndVioReq == false)
                                         {
@@ -1140,7 +1143,7 @@ namespace HMCU_Sim
                                             pItem.resNumCnt++;      //보낸 갯수 증가
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
-                                            find = true;
+                                            //find = true;
                                         }
 
                                         if (ProcNumber2 == 0xFFFFFFFF)
@@ -1168,7 +1171,7 @@ namespace HMCU_Sim
                                         ProcNumber3 = ProcNumber2;
                                         byte[] bProcNum = BitConverter.GetBytes(ProcNumber3);
 
-                                        bool find = false;
+                                        //bool find = false;
                                        
                                         if (pItem.sndVioReq == false)
                                         {
@@ -1176,7 +1179,7 @@ namespace HMCU_Sim
                                             pItem.resNumCnt++;
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
-                                            find = true;
+                                            //find = true;
                                         }
 
                                         if (ProcNumber3 == 0xFFFFFFFF)
@@ -1204,7 +1207,7 @@ namespace HMCU_Sim
                                         ProcNumber4 = ProcNumber3;
                                         byte[] bProcNum = BitConverter.GetBytes(ProcNumber4);
 
-                                        bool find = false;
+                                        //bool find = false;
 
                                         if (pItem.sndVioReq == false)
                                         {
@@ -1212,7 +1215,7 @@ namespace HMCU_Sim
                                             pItem.resNumCnt++;
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
-                                            find = true;
+                                            //find = true;
                                         }
 
                                         if (ProcNumber4 == 0xFFFFFFFF)
@@ -1244,7 +1247,7 @@ namespace HMCU_Sim
                         /// 영업소 번호
                         intValue = Convert.ToInt32(OfficeNumber);
                         // byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(intValue);
-                        byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
+                        byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN(intValue, 2);
                         Buffer.BlockCopy(boffice, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
                         index += 10; ///reserved
@@ -1259,7 +1262,7 @@ namespace HMCU_Sim
                         {
                             /// 영업소 번호
                             intValue = Convert.ToInt32(OfficeNumber);
-                            byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
+                            byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN(intValue, 2);
                             Buffer.BlockCopy(boffice, 0, data, index, Marshal.SizeOf(typeof(short)));
                             index += Marshal.SizeOf(typeof(short));
                             ///근무일자
@@ -1272,13 +1275,11 @@ namespace HMCU_Sim
                             index += Marshal.SizeOf(typeof(Byte));
 
                             ///근무번호
-                            intValue = Convert.ToInt32(LaneNumber);
-                            byte[] laneNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
-                            Buffer.BlockCopy(laneNum, 0, data, index, Marshal.SizeOf(typeof(Byte)));
-                            intValue = Convert.ToInt32(WorkNumber);
-                            byte[] workNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2LE(intValue);
-                            Buffer.BlockCopy(workNum, 0, data, index + 1, Marshal.SizeOf(typeof(Byte)));
-                            index += Marshal.SizeOf(typeof(short));
+                            data[index] = Convert.ToByte(LaneNumber);
+                            index += Marshal.SizeOf(typeof(Byte));
+
+                            data[index] = Convert.ToByte(WorkNumber);
+                            index += Marshal.SizeOf(typeof(Byte));
 
                             /// 처리번호 (통합차로제어기 부여)
                             byte[] bProcNum = BitConverter.GetBytes(pItem.ProcNum[pItem.curCfmCnt]);
