@@ -420,7 +420,16 @@ namespace HMCU_Sim
                                             recvTab.imageNum.Text = pVioReq.imagNum.ToString();
                                             if (sndTab.syncMethod.SelectedIndex == 1)
                                             {
+                                                int setByteOrder = sndTab.ByteOrder.SelectedIndex;
                                                 sndTab.VioNumber = pVioReq.imagNum;
+
+                                                byte[] cvtVioNum = BitConverter.GetBytes((short)sndTab.VioNumber);
+
+                                                if (setByteOrder == 1)     // Big endian
+                                                {
+                                                    cvtVioNum = cvtVioNum.Reverse().ToArray();
+                                                    sndTab.VioNumber =  BitConverter.ToInt16(cvtVioNum, 0);
+                                                }
                                             }
 
                                             //위반확인자동응답 체크 시 전송을 수행함.
@@ -859,7 +868,7 @@ namespace HMCU_Sim
         public byte[] INT2ENDIAN(int data, int Len)
         {
             int setByteOrder = sndTabUsrCtrl.ByteOrder.SelectedIndex;
-            byte[] b = new byte[Len];
+            byte[] b;
 
             switch(Len)
             {
