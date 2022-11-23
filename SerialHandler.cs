@@ -234,29 +234,28 @@ namespace HMCU_Sim
 
                     byte revBcc = frameBuf.buff[frameBuf.buffLen - 1];  //BCC 저장
 
-                    Array.Copy(frameBuf.buff, 4, array, 0, frameBuf.buffLen - 7); // DLE STX LEN CODE ~ DLE ETX BCC 를 뺌.
-                    int validSize = DelDLE(ref array, frameBuf.buffLen - 7);
+                    Array.Copy(frameBuf.buff, 2, array, 0, frameBuf.buffLen - 5); // DLE STX  ~ DLE ETX BCC 를 뺌.
+                    int validSize = DelDLE(ref array, frameBuf.buffLen - 5);
                     int delLen = frameBuf.buffLen;
-                    Array.Copy(array, 0, frameBuf.buff, 4, validSize);
+                    Array.Copy(array, 0, frameBuf.buff, 2, validSize);
 
-                    byte[] bccData = new byte[validSize + 1]; //LEN이 빠진 데이터 길이. Code + Seq + Data 까지검사
-                    bccData[0] = frameBuf.buff[3]; // code
-                    Array.Copy(array, 0, bccData, 1, validSize);
+                    byte[] bccData = new byte[validSize - 1]; //LEN이 빠진 데이터 길이. Code + Seq + Data 까지검사
+                    Array.Copy(array, 1, bccData, 0, validSize - 1);
 
                     byte calBcc = MainWindow.CalBCC(bccData, bccData.Length);
 
                     if (revBcc != calBcc)
                     {
-                        
-                        Array.Clear(frameBuf.buff, 0, frameBuf.buff.Length);
+                                               
                         sb.Append("BCC 오류");
+                        Array.Clear(frameBuf.buff, 0, frameBuf.buff.Length);
                         frameBuf.reset();  //BCC 오류
                         recvBuff.buffLen = 0;
                         return;
                     }
                     else
                     {
-                        //frameBuf.buffLen = 5 + validSize;
+                        frameBuf.buffLen = 5 + validSize;
                         frameBuf.buff[frameBuf.buffLen - 3] = Protocols.DLE;
                         frameBuf.buff[frameBuf.buffLen - 2] = Protocols.ETX;
                         frameBuf.buff[frameBuf.buffLen - 1] = revBcc;
