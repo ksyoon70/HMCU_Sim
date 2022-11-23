@@ -72,7 +72,7 @@ namespace HMCU_Sim
                 return extraLen;
             }
         }
-        private byte minFrameLen = 8;
+        private byte minFrameLen = 7;
         public virtual byte MinFrameLen
         {
             get

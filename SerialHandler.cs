@@ -190,12 +190,13 @@ namespace HMCU_Sim
                 return;
             }
 
-            if (dataBuf.buffLen >= 1024)
+
+            if (recvBuff.buffLen >= 256)
             {
-                dataBuf.reset();
+                recvBuff.reset();
             }
 
-           
+
             Array.Copy(dataBuf.buff,0, recvBuff.buff, recvBuff.buffLen, dataBuf.buffLen);
             recvBuff.buffLen += dataBuf.buffLen;
             dataBuf.reset();
@@ -214,38 +215,43 @@ namespace HMCU_Sim
                     findFrame = false;
                     sb.Clear();
 
-                    for (int i = frameHeader.MinFrameLen - 1 ; i < recvBuff.buffLen; i++)
+                    int recvLen = recvBuff.buffLen;
+                    for(int i = frameHeader.MinFrameLen; i < recvLen; i++)
                     {
-                        if (recvBuff.buff[i - 1] == Protocols.ETX && recvBuff.buff[i - 2] == Protocols.DLE)
+                        if (recvBuff.buff[0] == Protocols.DLE && recvBuff.buff[1] == Protocols.STX && recvBuff.buff[i - 1] == Protocols.ETX && recvBuff.buff[i - 2] == Protocols.DLE)
                         {
                             frameBuf.buffLen = i + 1;
-                            Array.Copy(recvBuff.buff, 0, frameBuf.buff, 0, frameBuf.buffLen);
+                            recvBuff.buffLen = i + 1;
+                            Array.Copy(recvBuff.buff, 0, frameBuf.buff, 0, recvLen);
                             findFrame = true;
                             break;
                         }
-
                     }
+                    
 
                     if (findFrame == false)
                           return;
 
                     byte revBcc = frameBuf.buff[frameBuf.buffLen - 1];  //BCC 저장
 
-                    Array.Copy(frameBuf.buff, 2, array, 0, frameBuf.buffLen - 5); // DLE STX ~ DLE ETX BCC 를 뺌.
-                    int validSize = DelDLE(ref array, frameBuf.buffLen - 5);
-                    Array.Copy(array, 0, recvBuff.buff, frameHeader.LenPos, validSize);
+                    Array.Copy(frameBuf.buff, 4, array, 0, frameBuf.buffLen - 7); // DLE STX LEN CODE ~ DLE ETX BCC 를 뺌.
+                    int validSize = DelDLE(ref array, frameBuf.buffLen - 7);
+                    int delLen = frameBuf.buffLen;
+                    Array.Copy(array, 0, frameBuf.buff, 4, validSize);
 
-                    byte[] bccData = new byte[validSize - 1]; //LEN이 빠진 데이터 길이.
-
-                    Array.Copy(array, 1, bccData, 0, bccData.Length);
+                    byte[] bccData = new byte[validSize + 1]; //LEN이 빠진 데이터 길이. Code + Seq + Data 까지검사
+                    bccData[0] = frameBuf.buff[3]; // code
+                    Array.Copy(array, 0, bccData, 1, validSize);
 
                     byte calBcc = MainWindow.CalBCC(bccData, bccData.Length);
 
                     if (revBcc != calBcc)
                     {
-                        frameBuf.reset();  //BCC 오류
+                        
                         Array.Clear(frameBuf.buff, 0, frameBuf.buff.Length);
                         sb.Append("BCC 오류");
+                        frameBuf.reset();  //BCC 오류
+                        recvBuff.buffLen = 0;
                         return;
                     }
                     else
@@ -255,6 +261,8 @@ namespace HMCU_Sim
                         frameBuf.buff[frameBuf.buffLen - 2] = Protocols.ETX;
                         frameBuf.buff[frameBuf.buffLen - 1] = revBcc;
                     }
+
+                    recvBuff.buffLen -= delLen;
 
                     switch (frameBuf.buff[frameHeader.CodePos])
                     {
@@ -464,22 +472,23 @@ namespace HMCU_Sim
                     }
 
                     recvTabUsrCtrl.CommRxList.Items.Add(sb.ToString());
-                    if (recvTabUsrCtrl.CommRxList.Items.Count > 100)
+                    if (recvTabUsrCtrl.CommRxList.Items.Count > 50)
                     {
                         recvTabUsrCtrl.CommRxList.Items.Clear();
                     }
                     recvTabUsrCtrl.CommRxList.ScrollIntoView(recvTabUsrCtrl.CommRxList.SelectedItem);
 
-                    if (recvBuff.buffLen > frameBuf.buffLen)
+                    /*if (recvBuff.buffLen > frameBuf.buffLen)
                     {
                         Array.ConstrainedCopy(recvBuff.buff, frameBuf.buffLen, recvBuff.buff, 0, (recvBuff.buffLen - frameBuf.buffLen));
-                    }
-                    recvBuff.buffLen -= frameBuf.buffLen;
+                    }*/
+                    
                     frameBuf.reset();
                     Array.Clear(frameBuf.buff, 0,frameBuf.buff.Length);
                     if(recvBuff.buffLen < 0)
                     {
                         MessageBox.Show("수신 메시지 이상\r\n");
+                        recvBuff.buffLen = 0;
                     }
 
                 }//while
