@@ -592,6 +592,16 @@ namespace HMCU_Sim
                     Array.Clear(data, 0, data.Length);
                     data[fheader.LenPos] = fheader.ImageConfirmLen;
                     break;
+                case Code.PROCESS_RESULT:
+                    data = new byte[fheader.ProcResultLen + fheader.ExtraLen];
+                    Array.Clear(data, 0, data.Length);
+                    data[fheader.LenPos] = fheader.ProcResultLen;
+                    break;
+                case Code.CONFIRM_INFO:
+                    data = new byte[fheader.Confirm22Len + fheader.ExtraLen];
+                    Array.Clear(data, 0, data.Length);
+                    data[fheader.LenPos] = fheader.Confirm22Len;
+                    break;
                 default:
                     data = new byte[100 + fheader.ExtraLen];
                     break;
@@ -1268,6 +1278,240 @@ namespace HMCU_Sim
                             MessageBox.Show("영상 확정을 보낼 것이 없습니다.(1)");
                         }
 
+                    }
+                    break;
+                case Code.PROCESS_RESULT:
+                    {
+                        int vioTypeIndex;
+
+                        // 위반확인요청이 없으면 종료한다.
+                        if (procList.Count == 0)
+                        {
+                            MessageBox.Show("수신된 번호인식결과가 없습니다.");
+                            return false;
+                        }
+
+                        /// 위반번호
+                        /// 
+                        bool findList = false;
+                        byte[] intBytes;
+
+                        if (pItem.sndVioReq == false)
+                        {
+                            //뒤짚어서 보내면 안됨
+                            //intBytes = BitConverter.GetBytes(pItem.vioNum);
+                            intBytes = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN((int)pItem.vioNum, 2);
+                            Buffer.BlockCopy(intBytes, 0, data, index, Marshal.SizeOf(typeof(short)));
+                            findList = true;
+                        }
+
+                        if (syncMethod.SelectedIndex == 1 && findList == false)
+                        {
+                            MessageBox.Show("이미 차량처리결과를 보냈습니다 (1)");
+                            return false;
+                        }
+
+                        index += Marshal.SizeOf(typeof(short));
+
+                        ///위반일시 생성
+                        Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
+                        index += Marshal.SizeOf(typeof(short));
+                        data[index] = (byte)month;
+                        index += Marshal.SizeOf(typeof(Byte));
+
+                        data[index] = (byte)day;
+                        index += Marshal.SizeOf(typeof(Byte));
+                        data[index] = (byte)hour;
+                        index += Marshal.SizeOf(typeof(Byte));
+                        data[index] = (byte)minute;
+                        index += Marshal.SizeOf(typeof(Byte));
+
+                        data[index] = (byte)sec;
+                        index += Marshal.SizeOf(typeof(Byte));
+
+                        //VioType은 나중에 할것이므로 기억만 만하고 있다가 나중에 처리
+                        vioTypeIndex = index;
+                        index += Marshal.SizeOf(typeof(Byte));
+
+                        ///근무번호
+                        data[index] = Convert.ToByte(LaneNumber);
+                        index += Marshal.SizeOf(typeof(Byte));
+
+                        data[index] = Convert.ToByte(WorkNumber);
+                        index += Marshal.SizeOf(typeof(Byte));
+
+                        ///근무일자
+                        Buffer.BlockCopy(bYear, 0, data, index, Marshal.SizeOf(typeof(short)));
+                        index += Marshal.SizeOf(typeof(short));
+                        data[index] = (byte)month;
+                        index += Marshal.SizeOf(typeof(Byte));
+
+                        data[index] = (byte)day;
+                        index += Marshal.SizeOf(typeof(Byte));
+
+                        if (pItem != null)
+                        {
+                            switch (pItem.resNumCnt)
+                            {
+                                case 0:
+                                    {
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType1.SelectedIndex;
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        byte[] bProcNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN((int)ProcNumber1, 4);
+
+                                        if (pItem.sndVioReq == false)
+                                        {
+                                            pItem.ProcNum[0] = ProcNumber1;
+                                            pItem.resNumCnt++;
+                                            //전송연번으로 동기화 할때.
+                                            int seq = pItem.seq;
+                                            data[fheader.SeqPos] = (byte)seq;
+                                        }
+
+                                        if (ProcNumber1 == 0xFFFFFFFF)
+                                        {
+                                            ProcNumber1 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber1++;
+                                        }
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode1);
+                                        index += Marshal.SizeOf(typeof(Byte));
+
+                                        break;
+                                    }
+                                case 1:
+                                    {
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType2.SelectedIndex;
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        ProcNumber2 = ProcNumber1;
+                                        byte[] bProcNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN((int)ProcNumber2, 4);
+
+                                        if (pItem.sndVioReq == false)
+                                        {
+                                            pItem.ProcNum[1] = ProcNumber2;
+                                            pItem.resNumCnt++;      //보낸 갯수 증가
+                                            int seq = pItem.seq;
+                                            data[fheader.SeqPos] = (byte)seq;
+                                        }
+
+                                        if (ProcNumber2 == 0xFFFFFFFF)
+                                        {
+                                            ProcNumber2 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber2++;
+                                        }
+
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode2);
+                                        index += Marshal.SizeOf(typeof(Byte));
+
+                                        break;
+                                    }
+                                case 2:
+                                    {
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType3.SelectedIndex;
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        ProcNumber3 = ProcNumber2;
+                                        byte[] bProcNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN((int)ProcNumber3, 4);
+
+                                        if (pItem.sndVioReq == false)
+                                        {
+                                            pItem.ProcNum[2] = ProcNumber3;
+                                            pItem.resNumCnt++;
+                                            int seq = pItem.seq;
+                                            data[fheader.SeqPos] = (byte)seq;
+                                        }
+
+                                        if (ProcNumber3 == 0xFFFFFFFF)
+                                        {
+                                            ProcNumber3 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber3++;
+                                        }
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode3);
+                                        index += Marshal.SizeOf(typeof(Byte));
+
+                                        break;
+                                    }
+                                case 3:
+                                    {
+                                        ///위반형태
+                                        data[vioTypeIndex] = (byte)vioType4.SelectedIndex;
+
+                                        /// 처리번호 (통합차로제어기 부여)
+                                        ProcNumber4 = ProcNumber3;
+                                        byte[] bProcNum = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN((int)ProcNumber4, 4);
+
+                                        if (pItem.sndVioReq == false)
+                                        {
+                                            pItem.ProcNum[3] = ProcNumber4;
+                                            pItem.resNumCnt++;
+                                            int seq = pItem.seq;
+                                            data[fheader.SeqPos] = (byte)seq;
+                                        }
+
+                                        if (ProcNumber4 == 0xFFFFFFFF)
+                                        {
+                                            ProcNumber4 = 1;
+                                        }
+                                        else
+                                        {
+                                            ProcNumber4++;
+                                        }
+                                        Buffer.BlockCopy(bProcNum, 0, data, index, Marshal.SizeOf(typeof(UInt32)));
+                                        index += Marshal.SizeOf(typeof(UInt32));
+                                        /// 위반코드
+                                        data[index] = Convert.ToByte(VioCode4);
+                                        index += Marshal.SizeOf(typeof(Byte));
+
+                                        break;
+                                    }
+                            }
+                        }
+
+
+                        /// 차량번호
+                        Buffer.BlockCopy(MainWindow.SetPlateNum(plateNum.Text), 0, data, index, 5);
+                        index += 5;
+                        /// 근무형태
+                        data[index] = (byte)(wkComboBox.SelectedIndex & 0xFF);
+                        index += Marshal.SizeOf(typeof(Byte));
+                        /// 영업소 번호
+                        intValue = Convert.ToInt32(OfficeNumber);
+                        // byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(intValue);
+                        byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN(intValue, 2);
+                        Buffer.BlockCopy(boffice, 0, data, index, Marshal.SizeOf(typeof(short)));
+                        index += Marshal.SizeOf(typeof(short));
+                        index += 16; ///reserved
+                    }
+                    break;
+                case Code.CONFIRM_INFO:
+                    {
+                        //처리번호
+                        byte[] intBytes = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN((int)pItem.vioNum, 2);
+                        Buffer.BlockCopy(intBytes, 0, data, index, Marshal.SizeOf(typeof(short)));
+                        index += 2;
+                        //확정위치
+                        data[index] = (byte)(othTabUsrCtrl.cnfComboBox.SelectedIndex + 1);  // 1이면 전면 2이면 후면.
+                        index += 1;
+                        index += 5; ///reserved
                     }
                     break;
                 default:

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;   //class 추가
+using System.Reflection;
 
 namespace HMCU_Sim
 {
@@ -34,7 +35,8 @@ namespace HMCU_Sim
         /// </summary>
         public void Load()
         {
-                int count;
+            int count;
+            int index;
             StringBuilder temp = new StringBuilder(255);
 
             GetPrivateProfileString("ETHERNET", "IP", "127.0.0.1", temp, 255, PROGRAM_INI_FULLPATH);
@@ -45,7 +47,10 @@ namespace HMCU_Sim
             /// 이더넷 포트 설정                 
             m_form.Svrport = temp.ToString();
 
-            
+            GetPrivateProfileString("SYSTEM", "PROTOCOL", "1", temp, 255, PROGRAM_INI_FULLPATH);
+            /// 프로토콜 설정
+            index = Convert.ToInt32(temp.ToString());
+            m_form.recvTabUsrCtrl.protoComboBox.SelectedIndex = index;
 
             GetPrivateProfileString("SYSTEM", "OPFFICE_NUM", "1234", temp, 255, PROGRAM_INI_FULLPATH);
             /// 영업소번호
@@ -65,7 +70,7 @@ namespace HMCU_Sim
 
             GetPrivateProfileString("SYSTEM", "WORK_TYPE", "0", temp, 255, PROGRAM_INI_FULLPATH);
             /// 근무타입
-            int index = Convert.ToInt32(temp.ToString());
+            index = Convert.ToInt32(temp.ToString());
             m_form.sndTabUsrCtrl.wkComboBox.SelectedIndex = index;
 
             //처리 갯수
@@ -164,6 +169,10 @@ namespace HMCU_Sim
             // 영상확정자동전송 체크 저장
             GetPrivateProfileString("ETC", "AUTO_SEND_CONFIRM", "false", temp, 255, PROGRAM_INI_FULLPATH);
             m_form.othTabUsrCtrl.autoConfirmSendCheck.IsChecked = (temp.ToString() == "1") ? true : false;
+
+            // 자동응답 체크
+            GetPrivateProfileString("SYSTEM", "AUTO_RESPONSE", "false", temp, 255, PROGRAM_INI_FULLPATH);
+            m_form.recvTabUsrCtrl.autoSendCheck.IsChecked = (temp.ToString() == "1") ? true : false;
         }
 
         /// <summary>
@@ -175,6 +184,9 @@ namespace HMCU_Sim
             WritePrivateProfileString("ETHERNET", "IP", m_form.SvrIP, PROGRAM_INI_FULLPATH);
             //IP저장
             WritePrivateProfileString("ETHERNET", "PORT", m_form.Svrport, PROGRAM_INI_FULLPATH);
+
+            /// 프로토콜 저장
+            WritePrivateProfileString("SYSTEM", "PROTOCOL", m_form.recvTabUsrCtrl.protoComboBox.SelectedIndex.ToString(), PROGRAM_INI_FULLPATH);
             //포트저장
             WritePrivateProfileString("SYSTEM", "OPFFICE_NUM", m_form.sndTabUsrCtrl.OfficeNumber, PROGRAM_INI_FULLPATH);
             //차선번호
@@ -238,6 +250,9 @@ namespace HMCU_Sim
             // 영상확정자동전송 체크 저장
             value = (m_form.othTabUsrCtrl.autoConfirmSendCheck.IsChecked == true) ? 1 : 0;
             WritePrivateProfileString("ETC", "AUTO_SEND_CONFIRM", value.ToString(), PROGRAM_INI_FULLPATH);
+            //자동응답 CHECK
+            value = (m_form.recvTabUsrCtrl.autoSendCheck.IsChecked == true) ? 1 : 0;
+            WritePrivateProfileString("SYSTEM", "AUTO_RESPONSE", value.ToString(), PROGRAM_INI_FULLPATH);
         }
 
         /// <summary>

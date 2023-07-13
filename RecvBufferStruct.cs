@@ -23,6 +23,7 @@ namespace HMCU_Sim
 
         public void reset()
         {
+            //Array.Clear(buff, 0, buffLen);
             buffLen = 0;
         }
     }

@@ -16,6 +16,8 @@ using System.Windows.Threading;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
+using static HMCU_Sim.SendUserControl;
+using static HMCU_Sim.RecvUserControl;
 
 namespace HMCU_Sim
 {
@@ -26,6 +28,45 @@ namespace HMCU_Sim
     {
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public class ProtoType
+        {
+
+            private int _id;
+
+            public int Id
+            {
+                get { return _id; }
+                set { _id = value; }
+            }
+            private string _name;
+
+            public string Name
+            {
+                get { return _name; }
+                set { _name = value; }
+            }
+        }
+
+        private ObservableCollection<ProtoType> _protoTypes;
+
+        public ObservableCollection<ProtoType> ProtoTypes  //collection을 반환
+        {
+            get { return _protoTypes; }
+            set { _protoTypes = value; }
+        }
+
+        private ProtoType _protoType;
+
+        public ProtoType Prototype  //개별 아이템을 반환
+        {
+            get { return _protoType; }
+            set
+            {
+                _protoType = value;
+                OnPropertyChanged("Prototype");
+            }
+        }
 
         private int seqNum;
         /**
@@ -50,6 +91,11 @@ namespace HMCU_Sim
             /// MainWindow과  데이터 동기화를 하기 위해서는 아래 문장을 실행 시켜 준다.
             DataContext = this;
             SeqNum = 1;
+
+            ProtoTypes = new ObservableCollection<ProtoType>()
+            {
+                new ProtoType(){ Id = 0, Name ="구형" },new ProtoType(){ Id = 1, Name ="신형22" }
+            };
         }
 
         private void SocketRxClear_Click(object sender, RoutedEventArgs e)

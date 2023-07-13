@@ -20,6 +20,7 @@ using System.IO.Ports;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 
 namespace HMCU_Sim
 {
@@ -190,22 +191,34 @@ namespace HMCU_Sim
                 return;
             }
 
-            if (dataBuf.buffLen >= 1024)
+            if (dataBuf.buffLen >= 400 )
             {
                 dataBuf.reset();
+                return;
             }
 
-           
-            Array.Copy(dataBuf.buff,0, recvBuff.buff, recvBuff.buffLen, dataBuf.buffLen);
-            recvBuff.buffLen += dataBuf.buffLen;
-            dataBuf.reset();
+            if(frameBuf.buffLen >= 400)
+            {
+                frameBuf.reset();
+                return;
+            }
 
+            Array.Copy(dataBuf.buff,0, frameBuf.buff, frameBuf.buffLen, dataBuf.buffLen);
+            frameBuf.buffLen += dataBuf.buffLen;
+            dataBuf.reset();
 
             SerialRecvDelegate srdel = delegate ()
             {
-                byte[] array = new byte[256];
+
                 string str = string.Empty;
                 StringBuilder sb = new StringBuilder();
+
+                if (frameBuf.buffLen > 0)
+                {
+                    Array.Copy(frameBuf.buff, 0, recvBuff.buff, recvBuff.buffLen, frameBuf.buffLen);
+                    recvBuff.buffLen += frameBuf.buffLen;
+                    frameBuf.reset();
+                }
 
                 bool findFrame = false;
 
@@ -213,27 +226,28 @@ namespace HMCU_Sim
                 {
                     findFrame = false;
                     sb.Clear();
-
-                    for (int i = frameHeader.MinFrameLen - 1 ; i < recvBuff.buffLen; i++)
+                    int recvLen = 0; //frameHeader.MinFrameLen;
+                    for(int i = recvBuff.buffLen - 5; i >= 0; i--)
                     {
-                        if (recvBuff.buff[i - 1] == Protocols.ETX && recvBuff.buff[i - 2] == Protocols.DLE)
+                        if (recvBuff.buff[i] == Protocols.DLE && recvBuff.buff[i + 1] == Protocols.STX && recvBuff.buff[recvBuff.buffLen - 2] == Protocols.ETX && recvBuff.buff[recvBuff.buffLen - 3] == Protocols.DLE)
                         {
-                            frameBuf.buffLen = i + 1;
-                            Array.Copy(recvBuff.buff, 0, frameBuf.buff, 0, frameBuf.buffLen);
+                            recvLen = recvBuff.buffLen - i;
+                            Array.Copy(recvBuff.buff, i, recvBuff.buff, 0, recvLen);
+                            recvBuff.buffLen = recvLen;
                             findFrame = true;
                             break;
                         }
-
                     }
 
-                    if (findFrame == false)
-                          return;
+                    if (!findFrame)
+                        break;
 
-                    byte revBcc = frameBuf.buff[frameBuf.buffLen - 1];  //BCC 저장
+                    byte revBcc = recvBuff.buff[recvBuff.buffLen - 1];  //BCC 저장
 
-                    Array.Copy(frameBuf.buff, 2, array, 0, frameBuf.buffLen - 5); // DLE STX ~ DLE ETX BCC 를 뺌.
-                    int validSize = DelDLE(ref array, frameBuf.buffLen - 5);
-                    Array.Copy(array, 0, recvBuff.buff, frameHeader.LenPos, validSize);
+                    Array.Copy(recvBuff.buff, 2, array, 0, recvBuff.buffLen - 5); // DLE STX ~ DLE ETX BCC 를 뺌.
+                    int validSize = DelDLE(ref array, recvBuff.buffLen - 5);
+
+                    //Array.Copy(array, 0, recvBuff.buff, frameHeader.LenPos, validSize);
 
                     byte[] bccData = new byte[validSize - 1]; //LEN이 빠진 데이터 길이.
 
@@ -243,35 +257,45 @@ namespace HMCU_Sim
 
                     if (revBcc != calBcc)
                     {
-                        frameBuf.reset();  //BCC 오류
-                        Array.Clear(frameBuf.buff, 0, frameBuf.buff.Length);
+                        recvBuff.reset();  //BCC 오류
+                        Array.Clear(recvBuff.buff, 0, recvBuff.buff.Length);
                         sb.Append("BCC 오류");
                         return;
                     }
                     else
                     {
-                        //frameBuf.buffLen = 5 + validSize;
-                        frameBuf.buff[frameBuf.buffLen - 3] = Protocols.DLE;
-                        frameBuf.buff[frameBuf.buffLen - 2] = Protocols.ETX;
-                        frameBuf.buff[frameBuf.buffLen - 1] = revBcc;
+                        //recvBuff.buff[frameBuf.buffLen - 3] = Protocols.DLE;
+                       // recvBuff.buff[frameBuf.buffLen - 2] = Protocols.ETX;
+                        //recvBuff.buff[frameBuf.buffLen - 1] = revBcc;
                     }
 
-                    switch (frameBuf.buff[frameHeader.CodePos])
+                    switch (array[frameHeader.CodePos - 2])
                     {
                         case Code.ACK:
-                            recvTab.SeqNum = (int)frameBuf.buff[frameHeader.SeqPos];  ///전송연번 업데이트
+                            recvTab.SeqNum = (int)array[frameHeader.SeqPos - 2];  ///전송연번 업데이트
                             break;
                         case Code.NACK:
-                            recvTab.SeqNum = (int)frameBuf.buff[frameHeader.SeqPos];  ///전송연번 업데이트
+                            recvTab.SeqNum = (int)array[frameHeader.SeqPos - 2];  ///전송연번 업데이트
                             //추후 재전송 로직 추가
                             break;
                         case Code.STATUS_RES:  ///상태정보 수신
                             {
-                                recvTab.SeqNum = (int)frameBuf.buff[frameHeader.SeqPos];  ///전송연번 업데이트
+                                recvTab.SeqNum = (int)array[frameHeader.SeqPos -2 ];  ///전송연번 업데이트
                                 //ACK를 보내줌.
                                 ProcItem item = null;
                                 sndTab.MakeFrame(Code.ACK, out byte[] data, comm, ref item);
-                                data[frameHeader.SeqPos] = frameBuf.buff[frameHeader.SeqPos];
+                                data[frameHeader.SeqPos] = array[frameHeader.SeqPos - 2];
+                                //commHandler.Send(data,data.Length);
+                                MainWindow.Send(data);
+                            }
+                            break;
+                        case Code.STATUS_RES_22: //상태정보 수신
+                            {
+                                recvTab.SeqNum = (int)array[frameHeader.SeqPos -2 ];  ///전송연번 업데이트
+                                //ACK를 보내줌.
+                                ProcItem item = null;
+                                sndTab.MakeFrame(Code.ACK, out byte[] data, comm, ref item);
+                                data[frameHeader.SeqPos] = array[frameHeader.SeqPos -2 ];
                                 //commHandler.Send(data,data.Length);
                                 MainWindow.Send(data);
                             }
@@ -279,15 +303,15 @@ namespace HMCU_Sim
                         case Code.VIO_CONFIRM_REQ:   ///위반확인요구 수신
                             {
                                 ProcItem item = null;
-                                recvTab.SeqNum = (int)frameBuf.buff[frameHeader.SeqPos];  ///전송연번 업데이트
+                                recvTab.SeqNum = (int)array[frameHeader.SeqPos - 2];  ///전송연번 업데이트
                                 sndTab.MakeFrame(Code.ACK, out byte[] data, comm, ref item);
-                                data[frameHeader.SeqPos] = frameBuf.buff[frameHeader.SeqPos];
+                                data[frameHeader.SeqPos] = array[frameHeader.SeqPos -2];
                                 //commHandler.Send(data, data.Length);
                                 MainWindow.Send(data);
                                 //ACK를 보내줌.
                                 int nCopy = Marshal.SizeOf(typeof(PACKET_VIO_REQUEST));
                                 byte[] _cpyArray = new byte[nCopy];
-                                Array.Copy(frameBuf.buff, 5, _cpyArray, 0, nCopy);
+                                Array.Copy(array, 5 - 2, _cpyArray, 0, nCopy);
 
                                 //위반확인응답을 보내줌.
                                 PACKET_VIO_REQUEST pVioReq = (PACKET_VIO_REQUEST)PacketMethods.ByteToStructure(_cpyArray, typeof(PACKET_VIO_REQUEST));
@@ -301,7 +325,7 @@ namespace HMCU_Sim
                                 }
 
                                 ProcItem pItem = new ProcItem((uint)sndTab.pcComboBox.SelectedIndex + 1);
-                                pItem.seq = frameBuf.buff[frameHeader.SeqPos];
+                                pItem.seq = array[frameHeader.SeqPos - 2];
                                 pItem.vioNum = pVioReq.imagNum;
                                 sndTab.procList.Add(pItem);
                                 /// 영상번호 업데이트
@@ -365,13 +389,13 @@ namespace HMCU_Sim
                         case Code.PLATE_RECOG_NOTIFY:
                             {
                                 ProcItem item = null;
-                                recvTab.SeqNum = (int)frameBuf.buff[frameHeader.SeqPos]; ///전송연번 업데이트
+                                recvTab.SeqNum = (int)array[frameHeader.SeqPos -2 ]; ///전송연번 업데이트
                                 sndTab.MakeFrame(Code.ACK, out byte[] data, comm, ref item);
-                                data[frameHeader.SeqPos] = frameBuf.buff[frameHeader.SeqPos];
+                                data[frameHeader.SeqPos] = array[frameHeader.SeqPos - 2];
                                 MainWindow.Send(data);
                                 //임시저장소 생성
                                 byte[] bVioNum = new byte[2];
-                                Array.Copy(frameBuf.buff, frameHeader.SeqPos + 1, bVioNum, 0, sizeof(ushort));
+                                Array.Copy(array, frameHeader.SeqPos + 1 - 2, bVioNum, 0, sizeof(ushort));
 
                                 ushort vioNum = BitConverter.ToUInt16(bVioNum, 0);  //영상번호 
 
@@ -416,7 +440,8 @@ namespace HMCU_Sim
                                     }
                                     else
                                     {
-                                        MessageBox.Show("영상 확정을 보낼 것이 없습니다 (3)");
+                                        //MessageBox.Show("영상 확정을 보낼 것이 없습니다 (3)");
+                                        sb.Append("영상 확정을 보낼 것이 없습니다 (3)");
                                     }
                                 }
                                 else
@@ -449,18 +474,195 @@ namespace HMCU_Sim
                                     }
                                     else
                                     {
-                                        MessageBox.Show("영상 확정을 보낼 것이 없습니다 (4)");
+                                        //MessageBox.Show("영상 확정을 보낼 것이 없습니다 (4)");
+                                        sb.Append("영상 확정을 보낼 것이 없습니다 (4)");
                                     }
                                 }
                             }
                             break;
+                        case Code.TRIGGER_INFO:
+                            {
+                                ProcItem item = null;
+                                recvTab.SeqNum = (int)array[frameHeader.SeqPos -2 ];  ///전송연번 업데이트
+                                sndTab.MakeFrame(Code.ACK, out byte[] data, comm, ref item);
+                                data[frameHeader.SeqPos] = array[frameHeader.SeqPos - 2];
+                                MainWindow.Send(data);
+                                //ACK를 보내줌.
+                                int nCopy = Marshal.SizeOf(typeof(PACKET_TRIG_INFO));
+                                byte[] _cpyArray = new byte[nCopy];
+                                Array.Copy(array, 5 - 2, _cpyArray, 0, nCopy);
+
+                                //트리거 정보를 가져옴.
+                                PACKET_TRIG_INFO ptrgInfo = (PACKET_TRIG_INFO)PacketMethods.ByteToStructure(_cpyArray, typeof(PACKET_TRIG_INFO));
+
+                                int setByteOrder = sndTab.ByteOrder.SelectedIndex;
+
+                                ProcItem pItem = new ProcItem((uint)sndTab.pcComboBox.SelectedIndex + 1);
+                                pItem.seq = array[frameHeader.SeqPos - 2];
+                                if (setByteOrder == 1)     // Big endian
+                                {
+                                    byte[] cvtTigNum = BitConverter.GetBytes((short)ptrgInfo.triggerNum);
+                                    cvtTigNum = cvtTigNum.Reverse().ToArray();
+                                    pItem.vioNum = BitConverter.ToUInt16(cvtTigNum, 0);
+                                    recvTab.imageNum.Text = pItem.vioNum.ToString();
+                                }
+                                else
+                                {
+                                    pItem.vioNum = ptrgInfo.triggerNum;
+                                    recvTab.imageNum.Text = pItem.vioNum.ToString();
+                                }
+
+                                sndTab.procList.Add(pItem);
+                                /// 영상번호 업데이트
+                                
+                                if (sndTab.syncMethod.SelectedIndex == 1)
+                                {
+                                    sndTab.VioNumber = pItem.vioNum;
+                                }
+
+                            }
+                            break;
+                        case Code.PLATE_RECOG_INFO:
+                            {
+                                ProcItem item1 = null;
+                                recvTab.SeqNum = (int)array[frameHeader.SeqPos - 2];  ///전송연번 업데이트
+                                sndTab.MakeFrame(Code.ACK, out byte[] data, comm, ref item1);
+                                data[frameHeader.SeqPos] = array[frameHeader.SeqPos - 2];
+                                MainWindow.Send(data);
+                                //ACK를 보내줌.
+                                int nCopy = Marshal.SizeOf(typeof(PACKET_RECOG_INFO));
+                                byte[] _cpyArray = new byte[nCopy];
+                                Array.Copy(array, 5 - 2, _cpyArray, 0, nCopy);
+
+                                //트리거 정보를 가져옴.
+                                PACKET_RECOG_INFO precogInfo = (PACKET_RECOG_INFO)PacketMethods.ByteToStructure(_cpyArray, typeof(PACKET_RECOG_INFO));
+                                int setByteOrder = sndTab.ByteOrder.SelectedIndex;
+                                ushort triggerNum;
+                                if (setByteOrder == 1)     // Big endian
+                                {
+                                    byte[] cvtTigNum = BitConverter.GetBytes((short)precogInfo.triggerNum);
+                                    cvtTigNum = cvtTigNum.Reverse().ToArray();
+                                    triggerNum = BitConverter.ToUInt16(cvtTigNum, 0);
+
+                                }
+                                else
+                                {
+                                    triggerNum = precogInfo.triggerNum;
+                                }
+
+
+                                //영상확장자동전송 체크 시 전송을 수행함.
+                                if (recvTab.autoSendCheck.IsChecked == true)
+                                {
+                                    int procNum = sndTab.procList.Count;
+                                    bool findOk = false;
+                                    if (sndTab.procList.Count > 0)
+                                    {
+                                        for (int i = 0; i < sndTab.procList.Count; i++)
+                                        {
+                                            if (triggerNum == sndTab.procList[i].vioNum)
+                                            {
+                                                findOk = true;
+                                                uint j = sndTab.procList[i].curCfmCnt;
+                                                for (; j < sndTab.procList[i].procNumTotal; j++)
+                                                {
+                                                    ProcItem pItem = (ProcItem)sndTab.procList[i];
+                                                    sndTab.MakeFrame(Code.PROCESS_RESULT, out byte[] auto_data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref pItem);
+                                                    ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(auto_data, auto_data.Length);
+                                                    
+                                                }
+
+                                                break;
+                                            }
+
+                                        }
+                                        if (findOk == false)
+                                        {
+                                            sb.Append("영상확정 오류 !해당 영상번호가 없음\r\n");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //MessageBox.Show("영상 확정을 보낼 것이 없습니다 (3)");
+                                        sb.Append("영상 확정을 보낼 것이 없습니다 (3)");
+                                    }
+
+                                }
+                            }
+                            break;
+                        case Code.PLATE_NUM_NOTIFY:
+                            {
+                                //차량번호 통보 수신
+                                ProcItem item = null;
+                                recvTab.SeqNum = (int)array[frameHeader.SeqPos - 2 ]; ///전송연번 업데이트
+                                sndTab.MakeFrame(Code.ACK, out byte[] data, comm, ref item);
+                                data[frameHeader.SeqPos] = array[frameHeader.SeqPos - 2 ];
+                                MainWindow.Send(data);
+                                //ACK 전송
+                                int nCopy = Marshal.SizeOf(typeof(PACKET_PLATENUM_NOTIFY));
+                                byte[] _cpyArray = new byte[nCopy];
+                                Array.Copy(array, 5 -2 , _cpyArray, 0, nCopy);
+
+                                //트리거 정보를 가져옴.
+                                PACKET_PLATENUM_NOTIFY pplateNumInfo = (PACKET_PLATENUM_NOTIFY)PacketMethods.ByteToStructure(_cpyArray, typeof(PACKET_PLATENUM_NOTIFY));
+                                int setByteOrder = sndTab.ByteOrder.SelectedIndex;
+                                ushort triggerNum;
+                                if (setByteOrder == 1)     // Big endian
+                                {
+                                    byte[] cvtTigNum = BitConverter.GetBytes((short)pplateNumInfo.triggerNum);
+                                    cvtTigNum = cvtTigNum.Reverse().ToArray();
+                                    triggerNum = BitConverter.ToUInt16(cvtTigNum, 0);
+
+                                }
+                                else
+                                {
+                                    triggerNum = pplateNumInfo.triggerNum;
+                                }
+
+                                //영상확장자동전송 체크 시 전송을 수행함.
+                                if (recvTab.autoSendCheck.IsChecked == true)
+                                {
+                                    int procNum = sndTab.procList.Count;
+                                    bool findOk = false;
+                                    if (sndTab.procList.Count > 0)
+                                    {
+                                        for (int i = 0; i < sndTab.procList.Count; i++)
+                                        {
+
+                                            if (triggerNum == sndTab.procList[i].vioNum)
+                                            {
+
+                                                ProcItem pItem = (ProcItem)sndTab.procList[i];
+                                                sndTab.MakeFrame(Code.CONFIRM_INFO, out byte[] auto_data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref pItem);
+                                                ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(auto_data, auto_data.Length);
+                                                sndTab.procList.RemoveAt(i);  //영상확정을 보내면 삭제한다.
+                                                findOk = true;
+                                                break;
+                                            }
+
+                                        }
+                                        if (findOk == false)
+                                        {
+                                            sb.Append("확정정보 오류 !해당 영상번호가 없음\r\n");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //MessageBox.Show("확정정보을 보낼 것이 없습니다 (3)");
+                                        sb.Append("확정정보을 보낼 것이 없습니다 (3)");
+                                    }
+                                }
+      
+                            }
+                            break;
                         default:
+                            recvBuff.reset();
                             break;
                     }
 
-                    for (int i = 0; i < frameBuf.buffLen; i++)
+                    for (int i = 0; i < recvBuff.buffLen; i++)
                     {
-                        sb.Append(string.Format("[" + "{0:x2}" + "]", frameBuf.buff[i]));
+                        sb.Append(string.Format("[" + "{0:x2}" + "]", recvBuff.buff[i]));
                     }
 
                     recvTabUsrCtrl.CommRxList.Items.Add(sb.ToString());
@@ -470,17 +672,22 @@ namespace HMCU_Sim
                     }
                     recvTabUsrCtrl.CommRxList.ScrollIntoView(recvTabUsrCtrl.CommRxList.SelectedItem);
 
-                    if (recvBuff.buffLen > frameBuf.buffLen)
+                    if (recvBuff.buffLen > recvLen)
                     {
-                        Array.ConstrainedCopy(recvBuff.buff, frameBuf.buffLen, recvBuff.buff, 0, (recvBuff.buffLen - frameBuf.buffLen));
+                        Array.ConstrainedCopy(recvBuff.buff, recvLen, recvBuff.buff, 0, recvBuff.buffLen - recvLen);
                     }
-                    recvBuff.buffLen -= frameBuf.buffLen;
-                    frameBuf.reset();
-                    Array.Clear(frameBuf.buff, 0,frameBuf.buff.Length);
-                    if(recvBuff.buffLen < 0)
+                    else
+                        recvBuff.reset();
+
+                   
+
+                    if (recvBuff.buffLen < 0)
                     {
-                        MessageBox.Show("수신 메시지 이상\r\n");
+                        //MessageBox.Show("수신 메시지 이상\r\n");
+                        sb.Append("수신 메시지 이상\r\n");
                     }
+
+                    break;
 
                 }//while
                 

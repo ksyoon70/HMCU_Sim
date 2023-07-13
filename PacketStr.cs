@@ -161,4 +161,42 @@ namespace HMCU_Sim
         public Byte imgStatus;           //트리거 상태
         public UInt16 imagNum;            //영상번호
     }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+    unsafe struct PACKET_TRIG_INFO
+    {
+        public UInt16 triggerNum;            //트리거 번호
+        public Byte imageLoc;           //영상위치 01h 전면 02h 후면
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+    unsafe struct PACKET_RECOG_INFO
+    {
+        public UInt16 triggerNum;            //트리거 번호
+        public Byte recogResult;             //00 영상인식 01 인식 02 부분인식 FF 미인식
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
+        public Byte[] plateNum;            //인식번호
+        public Byte pay;                    //00 미과금, 01 과금
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
+        public byte[] res;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+    unsafe struct PACKET_PLATENUM_NOTIFY
+    {
+        public UInt16 triggerNum;            //트리거 번호
+        public Byte fRecogResult;        //00 전면 영상인식 01 인식 02 부분인식 FF 미인식
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
+        public Byte[] fPlateNum;            //전면 인식번호
+        public Byte rRecogResult;        //00 후면 영상인식 01 인식 02 부분인식 FF 미인식
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
+        public Byte[] rPlateNum;            //후면 인식번호
+        public Byte confirm;                 //확정구분 00 확정없음(전면만 또는 후면만 촬영시), 01 전면, 02 후면
+        public Byte cRecogResult;        //00 확정영상 인식 01 인식 02 부분인식 FF 미인식
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
+        public Byte[] cPlateNum;            //확정 인식번호
+        public Byte axis;                   //축중에서 감지한 축수
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        public byte[] res;
+    }
 }

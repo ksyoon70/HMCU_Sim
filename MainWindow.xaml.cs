@@ -178,6 +178,7 @@ namespace HMCU_Sim
 
         public RecvBufferStruct recvBuff;
         public RecvBufferStruct dataBuf;
+        public byte[] array;
         /// <summary>
         /// 프레임 처리를 위한 메모리
         /// </summary>
@@ -232,6 +233,8 @@ namespace HMCU_Sim
             dataBuf = new RecvBufferStruct();
 
             frameBuf = new RecvBufferStruct();
+
+            array = new byte[256];
 
         }
         protected void OnPropertyChanged(string propertyName)

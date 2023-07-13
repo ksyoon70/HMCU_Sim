@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,6 +30,7 @@ namespace HMCU_Sim
         public const byte NACK = 0x15;
         public const byte STATUS_REQ = 0x11;        //상태요청                   
         public const byte STATUS_RES = 0x21;        //상태응답
+        public const byte STATUS_RES_22 = 0x22;     //상태응답 22년 기능개선
         public const byte WORK_START = 0x31;        //근무시작
         public const byte WORK_END = 0x32;          //근무종료
         public const byte VIO_CONFIRM_REQ = 0x41;   //위반확인요구
@@ -39,6 +41,11 @@ namespace HMCU_Sim
         public const byte VIO_NUMBER_SYNC = 0x25;          //위반번호 Sync
         public const byte IN_SPECIAL_ISSUE_START_NOTIFY = 0x51;     //입구특별발행개시 통보
         public const byte IN_SPECIAL_ISSUE_END_NOTIFY = 0x52;     //입구특별발행종료 통보
+        public const byte TRIGGER_INFO = 0x61;                   //22년 기능 개선 트리거 정보 프레임
+        public const byte PLATE_RECOG_INFO = 0x62;                // 번호인식결과 프레임
+        public const byte PROCESS_RESULT = 0x63;                    //차량처리결과 프레임
+        public const byte PLATE_NUM_NOTIFY = 0x64;                  //차량번호 통보 (신) 프레임
+        public const byte CONFIRM_INFO = 0x65;                      //확정정보 (신) 프레임
     }
 
     static class Frame
@@ -62,6 +69,8 @@ namespace HMCU_Sim
         public byte WorkEndLen = 16;
         public byte VioNumberSync = 4;
         public byte ImageConfirmLen = 15;         //영상확정 길이
+        public byte ProcResultLen = 47;            //시리얼에서는 CODE SEQ DATA 길이
+        public byte Confirm22Len = (byte)(Marshal.SizeOf(typeof(PACKET_PLATENUM_NOTIFY)) + 1);
         public byte AckLen = 2;
         public byte NackLen = 2;
         private byte extraLen = 3;     //STX, LEN, ETX 갯수
@@ -147,7 +156,7 @@ namespace HMCU_Sim
 
     public class SerialHeader : FrameHeader
     {
-        private  byte extraLen = 6;     //STX, LEN, ETX 갯수
+        private  byte extraLen = 6;     //DEL STX, LEN, DLE, ETX, BCC갯수
         public override byte ExtraLen
         {
             get
