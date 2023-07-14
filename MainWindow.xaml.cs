@@ -179,6 +179,7 @@ namespace HMCU_Sim
         public RecvBufferStruct recvBuff;
         public RecvBufferStruct dataBuf;
         public byte[] array;
+        public byte[] bccData;
         /// <summary>
         /// 프레임 처리를 위한 메모리
         /// </summary>
@@ -235,6 +236,7 @@ namespace HMCU_Sim
             frameBuf = new RecvBufferStruct();
 
             array = new byte[256];
+            bccData = new byte[256];
 
         }
         protected void OnPropertyChanged(string propertyName)
@@ -511,7 +513,8 @@ namespace HMCU_Sim
             b_index += 1;
 
             //번호판번호
-            string szNum = plateNum.Substring(index, 4);
+            string str = plateNum.Substring(index, 4);
+            string szNum = Regex.Replace(str, @"[^0-9]", "");  //문자중 숫자만 뽑아내는 방법
             int nIntNum = int.Parse(szNum);
             byte[] bmNum = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(nIntNum);
             Buffer.BlockCopy(bmNum, 0, bcdPlate, b_index, Marshal.SizeOf(typeof(short)));

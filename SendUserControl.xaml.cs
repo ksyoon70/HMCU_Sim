@@ -31,6 +31,8 @@ namespace HMCU_Sim
         private string[] procCounts = new string[] { "1", "2", "3", "4" };   //처리번호 갯수
         private string[] voTypes = new string[] { "정보없음", "근무중위반", "면제할인", "폐쇄차로위반","테스트모드","통행권미수취","선불출퇴근추가할인","선불심야할인"
         ,"후불정상","후불출퇴근추가할인","후불심야할인","감면할인"};
+        private string[] obuTypes = new string[] { "없음", "할인", "면제"};
+        private string[] obuCarClass = new string[] { "1종", "2종", "3종","4종","5종","6종" };
         private string[] confLocation = new string[] { "전면", "후면" };
         private string[] syncMethods = new string[] { "전송연번", "위반번호" };
         private string[] confTime = new string[] { "위반응답", "영상확정" };
@@ -214,7 +216,7 @@ namespace HMCU_Sim
         }
 
         /**
-        *  vio code1설정
+        *  vio code2설정
         * */
         private string _vioCode2;
         public string VioCode2
@@ -231,7 +233,7 @@ namespace HMCU_Sim
         }
 
         /**
-        *  vio code1설정
+        *  vio code3설정
         * */
         private string _vioCode3;
         public string VioCode3
@@ -261,6 +263,74 @@ namespace HMCU_Sim
             {
                 _vioCode4 = value;
                 OnPropertyChanged("VioCode4");
+            }
+        }
+
+        /**
+       *  obu num1설정
+       * */
+        private string _obuNum1;
+        public string ObuNum1
+        {
+            get
+            {
+                return _obuNum1;
+            }
+            set
+            {
+                _obuNum1 = value;
+                OnPropertyChanged("ObuNum1");
+            }
+        }
+
+        /**
+       *  obu num2설정
+       * */
+        private string _obuNum2;
+        public string ObuNum2
+        {
+            get
+            {
+                return _obuNum2;
+            }
+            set
+            {
+                _obuNum2 = value;
+                OnPropertyChanged("ObuNum2");
+            }
+        }
+
+        /**
+       *  obu num3설정
+       * */
+        private string _obuNum3;
+        public string ObuNum3
+        {
+            get
+            {
+                return _obuNum3;
+            }
+            set
+            {
+                _obuNum3 = value;
+                OnPropertyChanged("ObuNum3");
+            }
+        }
+
+        /**
+       *  obu num4설정
+       * */
+        private string _obuNum4;
+        public string ObuNum4
+        {
+            get
+            {
+                return _obuNum4;
+            }
+            set
+            {
+                _obuNum4 = value;
+                OnPropertyChanged("ObuNum4");
             }
         }
 
@@ -352,6 +422,7 @@ namespace HMCU_Sim
         public OtherUserControl othTabUsrCtrl;
         //타이머 시작
         DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        DispatcherTimer statusReqTimer = new DispatcherTimer();
         public SendUserControl()
         {
             InitializeComponent();
@@ -377,6 +448,12 @@ namespace HMCU_Sim
 
             dispatcherTimer.Start();
 
+            statusReqTimer.Tick += new EventHandler(statusReqTimer_Tick);
+
+            statusReqTimer.Interval = new TimeSpan(0, 0, 60);
+
+            statusReqTimer.Start();
+
             ///처리번호갯수
             foreach (string pc in procCounts)
             {
@@ -393,6 +470,22 @@ namespace HMCU_Sim
                 vioType4.Items.Add(vt);
             }
 
+            //OBU 타입
+            foreach (string ot in obuTypes)
+            {
+                obuType1.Items.Add(ot);
+                obuType2.Items.Add(ot);
+                obuType3.Items.Add(ot);
+                obuType4.Items.Add(ot);
+            }
+            //OBU 차종
+            foreach (string oc in obuCarClass)
+            {
+                obuCarClass1.Items.Add(oc);
+                obuCarClass2.Items.Add(oc);
+                obuCarClass3.Items.Add(oc);
+                obuCarClass4.Items.Add(oc);
+            }
             ///바이트오더
             foreach (string ed in endian)
             {
@@ -428,6 +521,16 @@ namespace HMCU_Sim
                 procTime.Text = DateTime.Now.ToString("yyyyMMddHHmmss");
             });
 
+        }
+
+        private void statusReqTimer_Tick(object sender, EventArgs e)
+        {
+            if(autoSendStatusCheck.IsChecked == true)
+            {
+                ProcItem item = null;
+                MakeFrame(Code.STATUS_REQ, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
+                ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
+            }
         }
 
         private void SocketTxClear_Click(object sender, RoutedEventArgs e)
@@ -1363,7 +1466,7 @@ namespace HMCU_Sim
                                         if (pItem.sndVioReq == false)
                                         {
                                             pItem.ProcNum[0] = ProcNumber1;
-                                            pItem.resNumCnt++;
+                                            
                                             //전송연번으로 동기화 할때.
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
@@ -1396,7 +1499,6 @@ namespace HMCU_Sim
                                         if (pItem.sndVioReq == false)
                                         {
                                             pItem.ProcNum[1] = ProcNumber2;
-                                            pItem.resNumCnt++;      //보낸 갯수 증가
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
                                         }
@@ -1429,7 +1531,6 @@ namespace HMCU_Sim
                                         if (pItem.sndVioReq == false)
                                         {
                                             pItem.ProcNum[2] = ProcNumber3;
-                                            pItem.resNumCnt++;
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
                                         }
@@ -1462,7 +1563,6 @@ namespace HMCU_Sim
                                         if (pItem.sndVioReq == false)
                                         {
                                             pItem.ProcNum[3] = ProcNumber4;
-                                            pItem.resNumCnt++;
                                             int seq = pItem.seq;
                                             data[fheader.SeqPos] = (byte)seq;
                                         }
@@ -1495,11 +1595,79 @@ namespace HMCU_Sim
                         index += Marshal.SizeOf(typeof(Byte));
                         /// 영업소 번호
                         intValue = Convert.ToInt32(OfficeNumber);
-                        // byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).IntToBCD(intValue);
                         byte[] boffice = ((MainWindow)System.Windows.Application.Current.MainWindow).INT2ENDIAN(intValue, 2);
                         Buffer.BlockCopy(boffice, 0, data, index, Marshal.SizeOf(typeof(short)));
                         index += Marshal.SizeOf(typeof(short));
-                        index += 16; ///reserved
+                        switch (pItem.resNumCnt)
+                        {
+                            case 0:
+                                {
+                                    //OBU 제조번호
+                                    int obuNumber = Convert.ToInt32(obuNum1.Text);
+                                    string str = obuNumber.ToString("D8");
+                                    byte[] digits = str.ToString().Select(c => byte.Parse(c.ToString())).ToArray();
+                                    Buffer.BlockCopy(digits, 0, data, index, digits.Length);
+                                    index += digits.Length;
+                                    //OBU 종류
+                                    data[index] = (byte)(obuType1.SelectedIndex & 0xFF);
+                                    index += Marshal.SizeOf(typeof(Byte));
+                                    //OBU 차종
+                                    data[index] = (byte)(obuCarClass1.SelectedIndex + 1 & 0xFF);
+                                    index += Marshal.SizeOf(typeof(Byte));
+                                }
+                                break;
+                            case 1:
+                                {
+                                    int obuNumber = Convert.ToInt32(obuNum2.Text);
+                                    string str = obuNumber.ToString("D8");
+                                    byte[] digits = str.ToString().Select(c => byte.Parse(c.ToString())).ToArray();
+                                    Buffer.BlockCopy(digits, 0, data, index, digits.Length);
+                                    index += digits.Length;
+                                    //OBU 종류
+                                    data[index] = (byte)(obuType2.SelectedIndex & 0xFF);
+                                    index += Marshal.SizeOf(typeof(Byte));
+                                    //OBU 차종
+                                    data[index] = (byte)(obuCarClass2.SelectedIndex + 1 & 0xFF);
+                                    index += Marshal.SizeOf(typeof(Byte));
+                                }
+                                break;
+                            case 2:
+                                {
+                                    int obuNumber = Convert.ToInt32(obuNum3.Text);
+                                    string str = obuNumber.ToString("D8");
+                                    byte[] digits = str.ToString().Select(c => byte.Parse(c.ToString())).ToArray();
+                                    Buffer.BlockCopy(digits, 0, data, index, digits.Length);
+                                    index += digits.Length;
+                                    //OBU 종류
+                                    data[index] = (byte)(obuType3.SelectedIndex & 0xFF);
+                                    index += Marshal.SizeOf(typeof(Byte));
+                                    //OBU 차종
+                                    data[index] = (byte)(obuCarClass3.SelectedIndex + 1 & 0xFF);
+                                    index += Marshal.SizeOf(typeof(Byte));
+                                }
+                                break;
+                            case 3:
+                                {
+                                    int obuNumber = Convert.ToInt32(obuNum4.Text);
+                                    string str = obuNumber.ToString("D8");
+                                    byte[] digits = str.ToString().Select(c => byte.Parse(c.ToString())).ToArray();
+                                    Buffer.BlockCopy(digits, 0, data, index, digits.Length);
+                                    index += digits.Length;
+                                    //OBU 종류
+                                    data[index] = (byte)(obuType4.SelectedIndex & 0xFF);
+                                    index += Marshal.SizeOf(typeof(Byte));
+                                    //OBU 차종
+                                    data[index] = (byte)(obuCarClass4.SelectedIndex + 1 & 0xFF);
+                                    index += Marshal.SizeOf(typeof(Byte));
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+
+                        index += 5; ///reserved
+                        pItem.resNumCnt++;
+
                     }
                     break;
                 case Code.CONFIRM_INFO:

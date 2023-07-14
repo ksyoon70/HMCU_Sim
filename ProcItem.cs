@@ -15,6 +15,7 @@ namespace HMCU_Sim
         public UInt32 curCfmCnt;        ///영상확인보냄  
         public UInt32 resNumCnt;        ///위반응답 처리 갯수 갯수 
         public UInt32 procNumTotal;     //현재 아이템의 처리번호 갯수
+        public int tickCount;
         public ProcItem()
         {
             ProcNum = new UInt32[4];  //처리번호 저장소
@@ -28,6 +29,7 @@ namespace HMCU_Sim
             curCfmCnt = 0;
             resNumCnt = 0;
             procNumTotal = 1;
+            tickCount = Environment.TickCount;
         }
         public ProcItem(UInt32 param )
         {
@@ -42,6 +44,7 @@ namespace HMCU_Sim
             curCfmCnt = 0;
             resNumCnt = 0;
             procNumTotal = param;
+            tickCount = Environment.TickCount;
         }
     }
 }
