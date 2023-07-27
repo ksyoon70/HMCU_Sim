@@ -94,7 +94,7 @@ namespace HMCU_Sim
 
             ProtoTypes = new ObservableCollection<ProtoType>()
             {
-                new ProtoType(){ Id = 0, Name ="구형" },new ProtoType(){ Id = 1, Name ="신형22" }
+                new ProtoType(){ Id = 0, Name ="구형" },new ProtoType(){ Id = 1, Name ="신형" },new ProtoType(){ Id = 2, Name ="신형22" }
             };
         }
 

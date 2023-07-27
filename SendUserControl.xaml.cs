@@ -521,6 +521,8 @@ namespace HMCU_Sim
                 procTime.Text = DateTime.Now.ToString("yyyyMMddHHmmss");
             });
 
+
+
         }
 
         private void statusReqTimer_Tick(object sender, EventArgs e)
@@ -1734,108 +1736,148 @@ namespace HMCU_Sim
         /// <param name="e"></param>
         private void SendVioConfirmResponse_Click(object sender, RoutedEventArgs e)
         {
+
             ///위반확인응답프레임 만들기.
             int maxLoop = pcComboBox.SelectedIndex + 1;
             uint saveProcNum = ProcNumber1;
 
-            for (int k = 0; k < procList.Count; k++)
-            {
-                for(int i = 0; i < procList[k].procNumTotal; i++)
-                {
-                    ProcItem item = (ProcItem)procList[k];
-                    if (MakeFrame(Code.VIO_CONFIRM_RES, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
-                    {
-                        ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
-                    }
-                }
-                if(procList[k].sndVioReq == false)
-                {
-                    procList[k].sndVioReq = true;
+            int ProtocolIndex = ((MainWindow)System.Windows.Application.Current.MainWindow).recvTabUsrCtrl.protoComboBox.SelectedIndex;
 
-                    ///싱크 번호가 이미지 번호가 아니면 그냥 MCU Sim에서 번호를 증가 한다.
-                    if (syncMethod.SelectedIndex != 1)
-                    {
-                        ///위반번호 증가
-                        VioNumber = VioNumber + 1;
-                        if (VioNumber == 0xFFFF)
-                        {
-                            VioNumber = 1;
-                        }
-                    }
-
-                    ProcNumber1 = saveProcNum;
-                    ProcNumber1 += (uint)maxLoop;
-                    ProcNumber2 = ProcNumber1 + 1;
-                    ProcNumber3 = ProcNumber2 + 1;
-                    ProcNumber4 = ProcNumber3 + 1;
-
-                    saveProcNum = ProcNumber1;
-                }
-               
-            }
-            if(cftComboBox.SelectedIndex == 0)
+            if (ProtocolIndex == 0)
             {
                 for (int k = 0; k < procList.Count; k++)
                 {
-                    if (procList[k].sndVioReq == true)
+                    for (int i = 0; i < procList[k].procNumTotal; i++)
                     {
-                        //위반확인에서 영상확정이고, 위반확인을 보내면 item 삭제
-                        procList.RemoveAt(k);
-                    }
-                }
-            }
-            
-        }
-
-        private void SendVioConfirmResponseNew_Click(object sender, RoutedEventArgs e)
-        {
-            ///위반확인응답프레임-New 만들기.
-            int maxLoop = pcComboBox.SelectedIndex + 1;
-            uint saveProcNum = ProcNumber1;
-            for (int k = 0; k < procList.Count; k++)
-            {
-                for (int i = 0; i < procList[k].procNumTotal; i++)
-                {
-                    ProcItem item = (ProcItem)procList[k];
-                    if (MakeFrame(Code.VIO_CONFIRM_RES_N, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
-                    {
-                        ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
-                    }
-                }
-                if (procList[k].sndVioReq == false)
-                {
-                    procList[k].sndVioReq = true;
-
-                    ///싱크 번호가 이미지 번호가 아니면 그냥 MCU Sim에서 번호를 증가 한다.
-                    if (syncMethod.SelectedIndex != 1)
-                    {
-                        ///위반번호 증가
-                        VioNumber = VioNumber + 1;
-                        if (VioNumber == 0xFFFF)
+                        ProcItem item = (ProcItem)procList[k];
+                        if (MakeFrame(Code.VIO_CONFIRM_RES, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
                         {
-                            VioNumber = 1;
+                            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
                         }
                     }
+                    if (procList[k].sndVioReq == false)
+                    {
+                        procList[k].sndVioReq = true;
 
-                    ProcNumber1 = saveProcNum;
-                    ProcNumber1 += (uint)maxLoop;
-                    ProcNumber2 = ProcNumber1 + 1;
-                    ProcNumber3 = ProcNumber2 + 1;
-                    ProcNumber4 = ProcNumber3 + 1;
-                    saveProcNum = ProcNumber1;
+                        ///싱크 번호가 이미지 번호가 아니면 그냥 MCU Sim에서 번호를 증가 한다.
+                        if (syncMethod.SelectedIndex != 1)
+                        {
+                            ///위반번호 증가
+                            VioNumber = VioNumber + 1;
+                            if (VioNumber == 0xFFFF)
+                            {
+                                VioNumber = 1;
+                            }
+                        }
+
+                        ProcNumber1 = saveProcNum;
+                        ProcNumber1 += (uint)maxLoop;
+                        ProcNumber2 = ProcNumber1 + 1;
+                        ProcNumber3 = ProcNumber2 + 1;
+                        ProcNumber4 = ProcNumber3 + 1;
+
+                        saveProcNum = ProcNumber1;
+                    }
+
                 }
-
+                if (cftComboBox.SelectedIndex == 0)
+                {
+                    for (int k = 0; k < procList.Count; k++)
+                    {
+                        if (procList[k].sndVioReq == true)
+                        {
+                            //위반확인에서 영상확정이고, 위반확인을 보내면 item 삭제
+                            procList.RemoveAt(k);
+                        }
+                    }
+                }
             }
-            if (cftComboBox.SelectedIndex == 0)
+            else if(ProtocolIndex == 1)
             {
                 for (int k = 0; k < procList.Count; k++)
                 {
-                    if (procList[k].sndVioReq == true)
+                    for (int i = 0; i < procList[k].procNumTotal; i++)
                     {
-                        //위반확인에서 영상확정이고, 위반확인을 보내면 item 삭제
-                        procList.RemoveAt(k);
+                        ProcItem item = (ProcItem)procList[k];
+                        if (MakeFrame(Code.VIO_CONFIRM_RES_N, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
+                        {
+                            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
+                        }
+                    }
+                    if (procList[k].sndVioReq == false)
+                    {
+                        procList[k].sndVioReq = true;
+
+                        ///싱크 번호가 이미지 번호가 아니면 그냥 MCU Sim에서 번호를 증가 한다.
+                        if (syncMethod.SelectedIndex != 1)
+                        {
+                            ///위반번호 증가
+                            VioNumber = VioNumber + 1;
+                            if (VioNumber == 0xFFFF)
+                            {
+                                VioNumber = 1;
+                            }
+                        }
+
+                        ProcNumber1 = saveProcNum;
+                        ProcNumber1 += (uint)maxLoop;
+                        ProcNumber2 = ProcNumber1 + 1;
+                        ProcNumber3 = ProcNumber2 + 1;
+                        ProcNumber4 = ProcNumber3 + 1;
+                        saveProcNum = ProcNumber1;
+                    }
+
+                }
+                if (cftComboBox.SelectedIndex == 0)
+                {
+                    for (int k = 0; k < procList.Count; k++)
+                    {
+                        if (procList[k].sndVioReq == true)
+                        {
+                            //위반확인에서 영상확정이고, 위반확인을 보내면 item 삭제
+                            procList.RemoveAt(k);
+                        }
                     }
                 }
+            }
+            else
+            {
+                //22년 기능개선 프로토콜
+                for (int k = 0; k < procList.Count; k++)
+                {
+                    for (int i = 0; i < procList[k].procNumTotal; i++)
+                    {
+                        ProcItem item = (ProcItem)procList[k];
+                        if (MakeFrame(Code.PROCESS_RESULT, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item) == true)
+                        {
+                            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
+                        }
+                    }
+                    if (procList[k].sndVioReq == false)
+                    {
+                        procList[k].sndVioReq = true;
+
+                        ///싱크 번호가 이미지 번호가 아니면 그냥 MCU Sim에서 번호를 증가 한다.
+                        if (syncMethod.SelectedIndex != 1)
+                        {
+                            ///위반번호 증가
+                            VioNumber = VioNumber + 1;
+                            if (VioNumber == 0xFFFF)
+                            {
+                                VioNumber = 1;
+                            }
+                        }
+
+                        ProcNumber1 = saveProcNum;
+                        ProcNumber1 += (uint)maxLoop;
+                        ProcNumber2 = ProcNumber1 + 1;
+                        ProcNumber3 = ProcNumber2 + 1;
+                        ProcNumber4 = ProcNumber3 + 1;
+                        saveProcNum = ProcNumber1;
+                    }
+
+                }
+
             }
 
         }
@@ -1883,27 +1925,56 @@ namespace HMCU_Sim
         private void ImageConfirm_Click(object sender, RoutedEventArgs e)
         {
             int procNum = procList.Count;
+            int ProtocolIndex = ((MainWindow)System.Windows.Application.Current.MainWindow).recvTabUsrCtrl.protoComboBox.SelectedIndex;
+
             if (procList.Count > 0)
             {
-                for(int i = 0; i < procList.Count; i++)
+                if (ProtocolIndex == 0 || ProtocolIndex == 1)
                 {
-                    if(procList[i].sndVioReq == true)
+                    for (int i = 0; i < procList.Count; i++)
                     {
-                       
-                        for(int j = 0; j < procList[i].procNumTotal;  j++)
+                        if (procList[i].sndVioReq == true)
                         {
-                            ProcItem item = (ProcItem)procList[i];
-                            MakeFrame(Code.IMAGE_CONFIRM, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
-                            ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
 
+                            for (int j = 0; j < procList[i].procNumTotal; j++)
+                            {
+                                ProcItem item = (ProcItem)procList[i];
+                                MakeFrame(Code.IMAGE_CONFIRM, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
+                                ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
+
+                            }
+                            if (procList[i].procNumTotal == procList[i].curCfmCnt)
+                            {
+                                procList.RemoveAt(i);  //영상확정을 보내면 삭제한다.
+                            }
+                            break;
                         }
-                        if(procList[i].procNumTotal == procList[i].curCfmCnt)
-                        {
-                            procList.RemoveAt(i);  //영상확정을 보내면 삭제한다.
-                        }
-                        break;
                     }
                 }
+                else
+                {
+                    //22년 기능개선 확정인 경우
+                    for (int i = 0; i < procList.Count; i++)
+                    {
+                        if (procList[i].sndVioReq == true)
+                        {
+
+                            for (int j = 0; j < procList[i].procNumTotal; j++)
+                            {
+                                ProcItem item = (ProcItem)procList[i];
+                                MakeFrame(Code.CONFIRM_INFO, out byte[] data, ((MainWindow)System.Windows.Application.Current.MainWindow).comm, ref item);
+                                ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(data, data.Length);
+
+                            }
+                            if (procList[i].procNumTotal == procList[i].curCfmCnt)
+                            {
+                                procList.RemoveAt(i);  //영상확정을 보내면 삭제한다.
+                            }
+                            break;
+                        }
+                    }
+                }
+               
             }
             else
             {

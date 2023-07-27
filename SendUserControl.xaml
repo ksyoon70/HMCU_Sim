@@ -162,7 +162,6 @@
             <WrapPanel Margin="5,5,0,0">
                 <Button Margin="5,0,0,0" Width="70" Click="HeartBeat_Click">상태요구</Button>
                 <Button Margin="5,0,0,0" Width="90" Click="SendVioConfirmResponse_Click">위반확인응답</Button>
-                <Button Margin="5,0,0,0" Width="110" Click ="SendVioConfirmResponseNew_Click">위반확인응답-신규</Button>
                 <Button Margin="5,0,0,0" Width="70" Click="ImageConfirm_Click">영상확정</Button>
             </WrapPanel>
             <WrapPanel Margin="5,5,0,0">

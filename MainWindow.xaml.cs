@@ -20,6 +20,7 @@ using System.IO.Ports;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace HMCU_Sim
@@ -332,6 +333,7 @@ namespace HMCU_Sim
             int index = 0;
             int b_index = 0;
             int checkThree = 0;
+            bool aYoung = false;
 
             if(string.IsNullOrEmpty(plateNum) || plateNum.Length < 7 || plateNum.Length > 11)
             {
@@ -345,72 +347,78 @@ namespace HMCU_Sim
             {
                 region = plateNum.Substring(0, 2);
                 region1 = plateNum.Substring(0, 1);
+                string sYoung = plateNum.Substring(plateNum.Length - 1, 1);
+                //마지막 문자가 영인지 확인한다.
+                if(sYoung == "영")
+                {
+                    aYoung = true;
+                }
             }
 
             switch (region)
             {
                 case "서울":
-                    bcdPlate[0] = 0x00;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x00 + 0x40) : 0x00);
                     index += 2;
                     break;
                 case "부산":
-                    bcdPlate[0] = 0x01;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x01 + 0x40) : 0x01);
                     index += 2;
                     break;
                 case "인천":
-                    bcdPlate[0] = 0x02;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x02 + 0x40) : 0x02);
                     index += 2;
                     break;
                 case "대구":
-                    bcdPlate[0] = 0x03;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x03 + 0x40) : 0x03);
                     index += 2;
                     break;
                 case "광주":
-                    bcdPlate[0] = 0x04;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x04 + 0x40) : 0x04);
                     index += 2;
                     break;
                 case "대전":
-                    bcdPlate[0] = 0x05;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x05 + 0x40) : 0x05);
                     index += 2;
                     break;
                 case "경기":
-                    bcdPlate[0] = 0x06;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x06 + 0x40) : 0x06);
                     index += 2;
                     break;
                 case "강원":
-                    bcdPlate[0] = 0x07;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x07 + 0x40) : 0x07);
                     index += 2;
                     break;
                 case "충북":
-                    bcdPlate[0] = 0x08;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x08 + 0x40) : 0x08);
                     index += 2;
                     break;
                 case "충남":
-                    bcdPlate[0] = 0x09;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x09 + 0x40) : 0x09);
                     index += 2;
                     break;
                 case "전북":
-                    bcdPlate[0] = 0x10;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x10 + 0x40) : 0x10);
                     index += 2;
                     break;
                 case "전남":
-                    bcdPlate[0] = 0x11;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x11 + 0x40) : 0x11);
                     index += 2;
                     break;
                 case "경북":
-                    bcdPlate[0] = 0x12;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x12 + 0x40) : 0x12);
                     index += 2;
                     break;
                 case "경남":
-                    bcdPlate[0] = 0x13;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x13 + 0x40) : 0x13);
                     index += 2;
                     break;
                 case "제주":
-                    bcdPlate[0] = 0x14;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x14 + 0x40) : 0x14);
                     index += 2;
                     break;
                 case "울산":
-                    bcdPlate[0] = 0x15;
+                    bcdPlate[0] = (byte)((aYoung) ? (0x15 + 0x40) : 0x15);
                     index += 2;
                     break;
                 case "외교":
@@ -524,6 +532,7 @@ namespace HMCU_Sim
         }
         static public string GetPlateNum(byte[] bcd)
         {
+            bool aYoung = false;
             StringBuilder sb = new StringBuilder();
             switch(bcd[0])
             {
@@ -579,55 +588,71 @@ namespace HMCU_Sim
                     sb.Append("세종");
                     break;
                 case 0x40:
-                    sb.Append("영서울");
+                    sb.Append("서울");
+                    aYoung = true;
                     break;
                 case 0x41:
-                    sb.Append("영부산");
+                    sb.Append("부산");
+                    aYoung = true;
                     break;
                 case 0x42:
-                    sb.Append("영인천");
+                    sb.Append("인천");
+                    aYoung = true;
                     break;
                 case 0x43:
-                    sb.Append("영대구");
+                    sb.Append("대구");
+                    aYoung = true;
                     break;
                 case 0x44:
-                    sb.Append("영광주");
+                    aYoung = true;
                     break;
                 case 0x45:
-                    sb.Append("영대전");
+                    sb.Append("대전");
+                    aYoung = true;
                     break;
                 case 0x46:
-                    sb.Append("영경기");
+                    sb.Append("경기");
+                    aYoung = true;
                     break;
                 case 0x47:
-                    sb.Append("영강원");
+                    sb.Append("강원");
+                    aYoung = true;
                     break;
                 case 0x48:
-                    sb.Append("영충북");
+                    sb.Append("충북");
+                    aYoung = true;
                     break;
                 case 0x49:
-                    sb.Append("영충남");
+                    sb.Append("충남");
+                    aYoung = true;
                     break;
                 case 0x50:
-                    sb.Append("영전북");
+                    sb.Append("전북");
+                    aYoung = true;
                     break;
                 case 0x51:
-                    sb.Append("영전남");
+                    sb.Append("전남");
+                    aYoung = true;
                     break;
                 case 0x52:
-                    sb.Append("영경북");
+                    sb.Append("경북");
+                    aYoung = true;
                     break;
                 case 0x53:
-                    sb.Append("영경남");
+                    sb.Append("경남");
+                    aYoung = true;
                     break;
                 case 0x54:
-                    sb.Append("영제주");
+                    sb.Append("제주");
+                    aYoung = true;
                     break;
                 case 0x55:
-                    sb.Append("영울산");
+                    sb.Append("울산");
+                    aYoung = true;
                     break;
                 case 0x56:
-                    sb.Append("영세종");
+                    sb.Append("세종");
+                    aYoung = true;
                     break;
                 case 0x80:
                     sb.Append("0");
@@ -681,6 +706,10 @@ namespace HMCU_Sim
             sb.Append(bcd[3].ToString("X2"));
             sb.Append(bcd[4].ToString("X2"));
 
+            if(aYoung == true)
+            {
+                sb.Append("영");
+            }
 
             return sb.ToString();
         }

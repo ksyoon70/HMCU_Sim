@@ -250,6 +250,19 @@ namespace HMCU_Sim
                 {
                     string str = string.Empty;
                     StringBuilder sb = new StringBuilder();
+                    int refTick = Environment.TickCount;
+
+                    for (int i = 0; i < sndTab.procList.Count; i++)
+                    {
+                        ProcItem pItem = (ProcItem)sndTab.procList[i];
+                        if (refTick - pItem.tickCount > 20000)      //200초가 지나면 삭제
+                        {
+                            sndTab.procList.RemoveAt(i);
+                            sb.Append(string.Format("<<시간초과 삭제 트리거번호[" + "{0:x2}" + "] 없음 \r\n", pItem.vioNum));
+                            break;
+                        }
+                    }
+
 
                     switch (array[frameHeader.CodePos - 2])
                     {
@@ -615,7 +628,7 @@ namespace HMCU_Sim
                                 {
                                     int procNum = sndTab.procList.Count;
                                     bool findOk = false;
-                                    int refTick = Environment.TickCount;
+                                    
                                     if (sndTab.procList.Count > 0)
                                     {
                                         for (int i = 0; i < sndTab.procList.Count; i++)
@@ -629,15 +642,6 @@ namespace HMCU_Sim
                                                 ((MainWindow)System.Windows.Application.Current.MainWindow).SendData(auto_data, auto_data.Length);
                                                 sndTab.procList.RemoveAt(i);  //영상확정을 보내면 삭제한다.
                                                 findOk = true;
-                                            }
-                                            else
-                                            {
-                                                ProcItem pItem = (ProcItem)sndTab.procList[i];
-                                                if (refTick - pItem.tickCount > 200000)      //200초가 지나면 삭제
-                                                {
-                                                    sndTab.procList.RemoveAt(i);
-                                                    sb.Append(string.Format("<<시간초과 삭제 트리거번호[" + "{0:x2}" + "] 없음 \r\n", pItem.vioNum));
-                                                }
                                             }
 
                                         }
