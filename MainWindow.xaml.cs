@@ -421,6 +421,14 @@ namespace HMCU_Sim
                     bcdPlate[0] = (byte)((aYoung) ? (0x15 + 0x40) : 0x15);
                     index += 2;
                     break;
+                case "세종":
+                    bcdPlate[0] = (byte)((aYoung) ? (0x16 + 0x40) : 0x16);
+                    index += 2;
+                    break;
+                case "임":
+                    bcdPlate[0] = 0x97;
+                    index += 1;
+                    break;
                 case "외교":
                     bcdPlate[0] = 0x98;
                     index += 2;
